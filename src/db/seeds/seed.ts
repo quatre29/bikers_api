@@ -1,13 +1,13 @@
 import db from "../connection";
 import format from "pg-format";
-import { User, BlogPosts } from "./types";
+import { User, BlogPost, BlogPostComment, Tag, Rating } from "./types";
 
 interface seedProps {
-  blogPosts: BlogPosts[];
-  blogPostComments: any;
-  tags: any;
+  blogPosts: BlogPost[];
+  blogPostComments: BlogPostComment[];
+  tags: Tag[];
   users: User[];
-  ratings: any;
+  ratings: Rating[];
 }
 
 const seed = async ({
@@ -82,10 +82,7 @@ const seed = async ({
       VALUES
       RETURNING slug, description;
   `,
-    tags.map(({ slug, description }: { slug: string; description: string }) => [
-      slug,
-      description,
-    ])
+    tags.map(({ slug, description }: Tag) => [slug, description])
   );
 
   const insertUsers = format(
@@ -108,10 +105,61 @@ const seed = async ({
     )
   );
 
-  const insertBlogPosts = format(`
+  const insertBlogPosts = format(
+    `
       INSERT INTO blog_posts 
       ( author, post_banner, body, title, created_at, tags)
-  `);
+      %L
+      RETURNING author, post_banner, body, title, created_at, tags;
+  `,
+    blogPosts.map(
+      ({ author, post_banner, body, title, created_at, tags }: BlogPost) => [
+        author,
+        post_banner,
+        body,
+        title,
+        created_at,
+        tags,
+      ]
+    )
+  );
+
+  const insertBlogComments = format(
+    `
+      INSERT INTO blog_comments
+      (author, post_id, created_at, body)
+      %L
+      RETURNING author, post_id, created_at, body;
+  `,
+    blogPostComments.map(
+      ({ author, post_id, created_at, body }: BlogPostComment) => [
+        author,
+        post_id,
+        created_at,
+        body,
+      ]
+    )
+  );
+
+  const insertRatings = format(
+    `
+      INSERT INTO ratings
+      (location_id, user, rating)
+      %L
+      RETURNING location_id, user, rating;
+  `,
+    ratings.map(({ location_id, user, rating }: Rating) => [
+      location_id,
+      user,
+      rating,
+    ])
+  );
+
+  await db.query(insertTags);
+  await db.query(insertUsers);
+  await db.query(insertBlogPosts);
+  await db.query(insertBlogComments);
+  await db.query(insertRatings);
 };
 
 export default seed;

@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import apiRouter from "./routes/apiRoutes";
-
+import "dotenv/config";
 const app = express();
 
 app.use(cors());

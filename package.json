@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "nodemon ./dist/listen.js",
     "start": "node ./dist/listen.js",
-    "seed": "",
-    "setup-dbs": "",
+    "seed": "node ./dist/db/seeds/run-seed.js",
+    "setup-dbs": "psql -f ./src/db/setup.sql",
     "seed:prod": "",
     "test": "NODE_ENV=\"test\" npm run seed && jest"
   },
