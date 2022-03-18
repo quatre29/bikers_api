@@ -1,8 +1,9 @@
 import seed from "./seed";
 import db from "../connection";
+import devData from "../data/development-data/index";
 
 const runSeed = async () => {
-  await seed();
+  await seed(devData);
   return await db.end();
 };
 
