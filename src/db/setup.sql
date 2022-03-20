@@ -3,4 +3,3 @@ DROP DATABASE IF EXISTS bikers;
 
 CREATE DATABASE bikers_test;
 CREATE DATABASE bikers;
-
