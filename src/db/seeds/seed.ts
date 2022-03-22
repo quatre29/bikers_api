@@ -42,6 +42,7 @@ const seed = async ({
         email VARCHAR(100),
         location VARCHAR(100),
         role VARCHAR(50) DEFAULT 'member',
+        password TEXT NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
   `);

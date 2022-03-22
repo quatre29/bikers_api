@@ -1,4 +1,5 @@
 \c bikers;
 
 
-SELECT * FROM blog_posts;
+SELECT * FROM users
+WHERE username = 'quatre29'

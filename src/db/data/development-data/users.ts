@@ -1,3 +1,6 @@
+import { encryptPassword } from "../../../utils/password";
+import { User } from "../../seeds/types";
+
 const users = [
   {
     username: "quatre29",

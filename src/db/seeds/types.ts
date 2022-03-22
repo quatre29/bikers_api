@@ -32,5 +32,5 @@ export type Tag = {
 export type Rating = {
   location_id: number;
   author: string;
-  rating: string;
+  rating: number;
 };

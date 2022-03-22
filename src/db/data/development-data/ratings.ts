@@ -32,12 +32,12 @@ const ratings = [
   {
     location_id: 4,
     author: "villan",
-    rating: "2",
+    rating: 2,
   },
   {
     location_id: 4,
     author: "predator88",
-    rating: "5",
+    rating: 5,
   },
 ];
 
