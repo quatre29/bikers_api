@@ -1,7 +1,6 @@
-import { encryptPassword } from "../../../utils/password";
 import { User } from "../../seeds/types";
 
-const users = [
+const users: User[] = [
   {
     username: "quatre29",
     name: "Adrian",
@@ -10,6 +9,7 @@ const users = [
       "https://images.unsplash.com/photo-1571109310638-4179e73158a5?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
     role: "admin",
     location: "UK",
+    password: "qawsed",
     created_at: new Date(1610964101251),
   },
   {
@@ -20,6 +20,7 @@ const users = [
       "https://images.unsplash.com/photo-1531455879102-7ea71378aad2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
     role: "moderator",
     location: "UK",
+    password: "qawsed",
     created_at: new Date(1610964101251),
   },
   {
@@ -30,6 +31,7 @@ const users = [
       "https://images.unsplash.com/photo-1571109310638-4179e73158a5?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
     role: "member",
     location: "Germany",
+    password: "qawsed",
     created_at: new Date(1610964101251),
   },
   {
@@ -40,6 +42,7 @@ const users = [
       "https://images.unsplash.com/photo-1565130961938-1c76efbbba1f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
     role: "member",
     location: "Unknown",
+    password: "qawsed",
     created_at: new Date(1610964101251),
   },
 ];

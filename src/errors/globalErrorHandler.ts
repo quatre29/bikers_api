@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import AppError from "./AppError";
-import * as dotenv from "dotenv";
 
-dotenv.config();
+console.log("GlobalError");
 
 const sendErrorDev = (err: AppError, res: Response) => {
-  res.status(err.statusCode).json({
+  res.status(err.statusCode).send({
     status: err.status,
     error: err,
     message: err.message,
@@ -15,14 +14,14 @@ const sendErrorDev = (err: AppError, res: Response) => {
 
 const sendErrorProduction = (err: AppError, res: Response) => {
   if (err.isOperational) {
-    res.status(err.statusCode).json({
+    res.status(err.statusCode).send({
       status: err.status,
       message: err.message,
     });
   } else {
     console.error("ERROR 💥", err);
 
-    res.status(500).json({
+    res.status(500).send({
       status: "error",
       message: "Something went wrong",
     });
@@ -46,7 +45,10 @@ export default (
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
-  if (process.env.NODE_ENV === "development") {
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === "test"
+  ) {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === "production") {
     let error = Object.assign(err);

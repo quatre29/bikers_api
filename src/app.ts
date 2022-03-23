@@ -4,17 +4,11 @@ import apiRouter from "./routes/apiRoutes";
 import * as dotenv from "dotenv";
 import globalErrorHandler from "./errors/globalErrorHandler";
 import AppError from "./errors/AppError";
-
-dotenv.config();
+import "./config";
 
 const app = express();
 
-app.use(
-  cors({
-    credentials: true,
-    origin: "http://localhost:3000",
-  })
-);
+app.use(cors());
 console.log(process.env.NODE_ENV, "/app.ts");
 
 app.use(express.json());

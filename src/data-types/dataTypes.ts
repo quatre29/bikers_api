@@ -1,12 +1,12 @@
 export type User = {
   username: string;
-  avatar: string;
+  avatar?: string;
   name: string;
   email?: string;
   location?: string;
-  role: string;
+  role?: string;
   password: string;
-  created_at: Date;
+  created_at?: Date;
 };
 
 export type BlogPost = {

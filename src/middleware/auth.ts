@@ -36,7 +36,7 @@ const isAuthenticated = async (
 
       if (decoded && verity(token as string, decoded?.payload)) {
         //TODO: Add actual payload username
-        req.user = decoded.payload;
+        // req.user = decoded.payload;
         next();
       } else {
         await rejectQuery("You don't have access, please log in");
