@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import AppError from "./AppError";
 
-console.log("GlobalError");
-
 const sendErrorDev = (err: AppError, res: Response) => {
   res.status(err.statusCode).send({
     status: err.status,

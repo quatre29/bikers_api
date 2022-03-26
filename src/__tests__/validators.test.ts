@@ -15,14 +15,7 @@ describe("userSchema validation", () => {
     const validation = validateUserSchema(user);
 
     expect(validation).toEqual({
-      value: {
-        name: "Adrian B",
-        password: "qawsed",
-        username: "quatre29",
-        email: "quatre29@email.com",
-        location: "UK",
-        role: "admin",
-      },
+      valid: true,
     });
   });
 
@@ -36,11 +29,18 @@ describe("userSchema validation", () => {
     const validation = validateUserSchema(user);
 
     expect(validation).toEqual({
-      value: {
-        name: "Adrian",
-        username: "quatre29",
-        password: "qawsed",
-      },
+      valid: true,
     });
+  });
+
+  it("should not validate without password", () => {
+    const user = {
+      name: "Adrian",
+      username: "quatre29",
+    };
+
+    const validation = validateUserSchema(user);
+
+    expect(validation).toEqual({ valid: false, msg: '"password" is required' });
   });
 });

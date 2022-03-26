@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import apiRouter from "./routes/apiRoutes";
-import * as dotenv from "dotenv";
 import globalErrorHandler from "./errors/globalErrorHandler";
 import AppError from "./errors/AppError";
 import "./config";
@@ -9,9 +8,13 @@ import "./config";
 const app = express();
 
 app.use(cors());
-console.log(process.env.NODE_ENV, "/app.ts");
 
 app.use(express.json());
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
 
 app.use("/api", apiRouter);
 

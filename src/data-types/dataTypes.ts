@@ -1,11 +1,24 @@
 export type User = {
+  user_id?: number;
   username: string;
   avatar?: string;
   name: string;
   email?: string;
   location?: string;
   role?: string;
-  password: string;
+  password?: string;
+  created_at?: Date;
+};
+
+export type ReturnedUser = {
+  user_id: number;
+  username: string;
+  avatar?: string;
+  name: string;
+  email?: string;
+  location?: string;
+  role?: string;
+  password?: string;
   created_at?: Date;
 };
 
@@ -34,4 +47,9 @@ export type Rating = {
   location_id: number;
   author: string;
   rating: number;
+};
+
+export type LoginCredentials = {
+  username: string;
+  password: string;
 };

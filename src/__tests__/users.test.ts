@@ -3,12 +3,12 @@ import seed from "../db/seeds/seed";
 import request from "supertest";
 import app from "../app";
 import db from "../db/connection";
-import { User } from "../data-types/dataTypes";
+import { LoginCredentials, User } from "../data-types/dataTypes";
 
-beforeEach(() => seed(testData));
+beforeAll(() => seed(testData));
 afterAll(() => db.end());
 
-describe("POST /api/auth", () => {
+describe("POST /api/users", () => {
   it("201: Creates a new user", async () => {
     const newUser: User = {
       username: "quatre888",
@@ -44,5 +44,43 @@ describe("POST /api/auth", () => {
     };
 
     await request(app).post("/api/users").send(newUser).expect(403);
+  });
+
+  it("400: Crate a user without password field", async () => {
+    const newUser = {
+      username: "quatre888",
+      name: "Q E",
+    };
+
+    const { body } = await request(app)
+      .post("/api/users")
+      .send(newUser)
+      .expect(400);
+  });
+});
+
+describe("POST /api/users/login", () => {
+  it("200: Login with valid credentials", async () => {
+    const newUser: LoginCredentials = {
+      username: "quatre888",
+      password: "qawsed",
+    };
+
+    await request(app).post("/api/users/login").send(newUser).expect(200);
+  });
+  it("400: Error when not providing all fields required", async () => {
+    const newUser = {
+      username: "quatre888",
+    };
+
+    await request(app).post("/api/users/login").send(newUser).expect(400);
+  });
+  it("401: Login with wrong credentials", async () => {
+    const newUser: LoginCredentials = {
+      username: "quatre888",
+      password: "wrongpassword",
+    };
+
+    await request(app).post("/api/users/login").send(newUser).expect(401);
   });
 });

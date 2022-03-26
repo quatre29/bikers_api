@@ -1,13 +1,19 @@
 import { Request, Response, NextFunction } from "express";
-import { User } from "../data-types/dataTypes";
+import { ReturnedUser, User } from "../data-types/dataTypes";
 import AppError from "../errors/AppError";
-import rejectQuery from "../errors/rejectQuery";
-
-import { insertNewUser } from "../models/users.model";
-import { encryptPassword } from "../utils/password";
+import jwt, { Secret } from "jsonwebtoken";
+import {
+  selectUserByColumn,
+  insertNewUser,
+  returnAllUsers,
+  insertNewPassword,
+} from "../models/users.model";
 import { validateUserSchema } from "../utils/validate";
+import { validatePassword, encryptPassword } from "../utils/password";
+import { signToken } from "../utils/jwt";
+import { valid } from "joi";
 
-export const createUser = async (
+export const signup = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -24,9 +30,7 @@ export const createUser = async (
 
     const validateUser = validateUserSchema(req.body);
 
-    console.log(validateUser, "validate user");
-
-    let userInput = {
+    let userInput: User = {
       username,
       name,
       password,
@@ -34,7 +38,7 @@ export const createUser = async (
       location,
     };
 
-    let newUser = {};
+    let newUser: ReturnedUser = {} as ReturnedUser;
 
     if (validateUser.valid) {
       newUser = await insertNewUser(userInput);
@@ -42,9 +46,95 @@ export const createUser = async (
       return next(new AppError(validateUser.msg!, 400));
     }
 
-    res.status(201).send({ user: newUser });
+    const token = signToken(newUser.user_id);
+
+    res.status(201).send({ status: "success", user: newUser, token });
   } catch (error) {
     next(error);
   }
 };
+
+//--------------------------------------------------------------------------
+
+export const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { new_password } = req.body;
+  const encryptedPassword = await encryptPassword(new_password);
+
+  const updatedUser = await insertNewPassword(5, encryptedPassword);
+
+  res.status(200).send({ status: "success", updatedUser });
+};
+
+//--------------------------------------------------------------------------
+
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return next(new AppError("Please provide username and password", 400));
+    }
+
+    const user = await selectUserByColumn(username, "username");
+    const validPassword = await validatePassword(password, user.password);
+
+    console.log(user, validPassword);
+
+    if (!user || !validPassword) {
+      return next(
+        new AppError(
+          "The username or password you entered did not match our records.Please double-check and try again",
+          401
+        )
+      );
+    }
+
+    const token = signToken(user.user_id);
+
+    res.status(200).send({ status: "success", token });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//--------------------------------------------------------------------------
+
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};
+
+//--------------------------------------------------------------------------
+
+export const getAllUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const users = await returnAllUsers();
+
+    if (users.length < 1)
+      return next(new AppError("No users could be found", 404));
+
+    res.status(200).send({ status: "success", users });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // export const createUser = async (req: Request, res: Response, next: NextFunction) => {};

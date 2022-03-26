@@ -36,13 +36,15 @@ const seed = async ({
 
   await db.query(`
       CREATE TABLE users (
-        username VARCHAR(30) UNIQUE PRIMARY KEY NOT NULL,
+        user_id SERIAL PRIMARY KEY NOT NULL,
+        username VARCHAR(30) UNIQUE NOT NULL,
         avatar VARCHAR(255) NOT NULL DEFAULT 'https://as2.ftcdn.net/v2/jpg/03/49/49/79/1000_F_349497933_Ly4im8BDmHLaLzgyKg2f2yZOvJjBtlw5.jpg',
         name VARCHAR(50) NOT NULL,
         email VARCHAR(100),
         location VARCHAR(100),
         role VARCHAR(50) DEFAULT 'member',
         password TEXT NOT NULL,
+        password_changed_at TIMESTAMPTZ,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
   `);
@@ -99,7 +101,7 @@ const seed = async ({
       (username, avatar, name, email, location, role, password, created_at)
       VALUES
       %L
-      RETURNING username, avatar, name, email, location, role, password, created_at;
+      RETURNING username, avatar, name, email, location, role, password, created_at, user_id;
     `,
     users.map(
       ({

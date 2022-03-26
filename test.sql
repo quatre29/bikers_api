@@ -1,5 +1,5 @@
 \c bikers;
 
 
-SELECT * FROM users
-WHERE username = 'quatre8888'
+SELECT * FROM users;
+-- WHERE username = 'quatre888';
