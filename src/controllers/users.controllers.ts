@@ -7,11 +7,13 @@ import {
   insertNewUser,
   returnAllUsers,
   insertNewPassword,
+  removeUser,
 } from "../models/users.model";
 import { validateUserSchema } from "../utils/validate";
 import { validatePassword, encryptPassword } from "../utils/password";
 import { signToken } from "../utils/jwt";
 import { valid } from "joi";
+import { checkIfRowExists } from "../utils/check";
 
 export const signup = async (
   req: Request,
@@ -132,6 +134,26 @@ export const getAllUsers = async (
       return next(new AppError("No users could be found", 404));
 
     res.status(200).send({ status: "success", users });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//--------------------------------------------------------------------------
+
+export const deleteUserById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { user_id } = req.params;
+
+    await checkIfRowExists(+user_id, "users", next);
+
+    await removeUser(+user_id);
+
+    res.status(204).send({ status: "success", msg: "User deleted" });
   } catch (error) {
     next(error);
   }

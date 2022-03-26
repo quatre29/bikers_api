@@ -1,5 +1,6 @@
 import { User } from "../data-types/dataTypes";
 import db from "../db/connection";
+import { checkIfRowExists } from "../utils/check";
 import { encryptPassword } from "../utils/password";
 
 export const changedPasswordAfter = (
@@ -74,4 +75,16 @@ export const returnAllUsers = async () => {
   );
 
   return users.rows;
+};
+
+export const removeUser = async (user_id: number) => {
+  // await checkIfRowExists(user_id, "users");
+
+  await db.query(
+    `
+    DELETE FROM users
+    WHERE user_id = $1
+    `,
+    [user_id]
+  );
 };

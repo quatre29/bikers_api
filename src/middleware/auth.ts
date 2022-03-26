@@ -15,23 +15,6 @@ const hasToken = (req: Request) =>
 
 const getToken = (req: Request) => req.headers.authorization?.split(" ")[1];
 
-const isAuth = (req: Request) => {
-  if (hasToken(req)) {
-    try {
-      const token = getToken(req);
-
-      // return verityToken(token as string, next);
-    } catch (error) {
-      return false;
-    }
-  }
-
-  return false;
-};
-
-export const isAdmin = async () => {};
-export const isModerator = async () => {};
-
 export const isAuthenticated = async (
   req: Request,
   res: Response,
@@ -88,4 +71,22 @@ export const isAuthenticated = async (
   } catch (error) {
     next(error);
   }
+};
+
+type rolesProps = "admin" | "moderator";
+
+export const restrictTo = (...roles: rolesProps[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!roles.includes(req.user.role)) {
+        return next(
+          new AppError("You do not have permission to perform this action", 403)
+        );
+      }
+
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
 };
