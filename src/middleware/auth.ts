@@ -2,10 +2,8 @@ import express, { NextFunction, Response, Request } from "express";
 import { decodeToken, verityToken } from "../utils/jwt";
 import { jwtCustomPayload } from "../utils/types";
 import AppError from "../errors/AppError";
-import {
-  changedPasswordAfter,
-  selectUserByColumn,
-} from "../models/users.model";
+import { selectUserByColumn } from "../models/users.model";
+import { changedPasswordAfter } from "../models/auth.model";
 // import { JwtPayload } from "jsonwebtoken";
 // import { valid } from "joi";
 
@@ -27,9 +25,12 @@ export const isAuthenticated = async (
 
       const validToken = verityToken(token as string, next) as {
         id: number;
+        username: string;
         iat: number;
         exp: number;
       };
+
+      console.log(validToken);
 
       if (validToken) {
         const currentUser = await selectUserByColumn(

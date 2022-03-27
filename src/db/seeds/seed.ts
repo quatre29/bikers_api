@@ -40,11 +40,13 @@ const seed = async ({
         username VARCHAR(30) UNIQUE NOT NULL,
         avatar VARCHAR(255) NOT NULL DEFAULT 'https://as2.ftcdn.net/v2/jpg/03/49/49/79/1000_F_349497933_Ly4im8BDmHLaLzgyKg2f2yZOvJjBtlw5.jpg',
         name VARCHAR(50) NOT NULL,
-        email VARCHAR(100),
+        email VARCHAR(100) NOT NULL,
         location VARCHAR(100),
         role VARCHAR(50) DEFAULT 'member',
         password TEXT NOT NULL,
         password_changed_at TIMESTAMPTZ,
+        password_reset_token VARCHAR(100),
+        password_reset_expires TIMESTAMPTZ,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
   `);

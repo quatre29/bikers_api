@@ -3,7 +3,7 @@ export type User = {
   username: string;
   avatar?: string;
   name: string;
-  email?: string;
+  email: string;
   location?: string;
   role?: string;
   password?: string;
@@ -15,7 +15,7 @@ export type ReturnedUser = {
   username: string;
   avatar?: string;
   name: string;
-  email?: string;
+  email: string;
   location?: string;
   role?: string;
   password?: string;

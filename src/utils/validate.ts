@@ -11,11 +11,11 @@ export const validateUserSchema = (user: User): ValidatorType => {
     username: Joi.string().alphanum().min(3).max(30).required(),
     password: Joi.string().required(),
     email: Joi.string()
-      .allow("")
       .email({
         minDomainSegments: 2,
         tlds: { allow: ["com", "net"] },
-      }),
+      })
+      .required(),
     location: Joi.string().min(2).max(100),
     role: Joi.string().valid("member", "moderator", "admin"),
     avatar: Joi.string(),

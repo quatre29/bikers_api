@@ -39,6 +39,7 @@ describe("POST /api/users", () => {
     const newUser: User = {
       username: "quatre888",
       name: "Q E",
+      email: "quatre888@email.com",
       password: "qawsed",
       role: "admin",
     };

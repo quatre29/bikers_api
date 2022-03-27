@@ -3,36 +3,6 @@ import db from "../db/connection";
 import { checkIfRowExists } from "../utils/check";
 import { encryptPassword } from "../utils/password";
 
-export const changedPasswordAfter = (
-  JWTTimestamp: number,
-  passChangedAt: Date
-): boolean => {
-  if (passChangedAt) {
-    const changedTimestamp = +(passChangedAt.getTime() / 1000).toFixed();
-
-    return JWTTimestamp < changedTimestamp;
-  }
-
-  //password not changed
-  return false;
-};
-
-export const insertNewPassword = async (user_id: number, password: string) => {
-  const user = await db.query(
-    `
-    UPDATE users
-    SET 
-    password_changed_at = to_timestamp($1 / 1000.0),
-    password = $2
-    WHERE user_id = $3
-    RETURNING *;
-    `,
-    [Date.now(), password, user_id]
-  );
-
-  return user.rows[0];
-};
-
 export const insertNewUser = async (user: User) => {
   const hashPassword = await encryptPassword(user.password as string);
   const newUser = await db.query(
@@ -55,7 +25,7 @@ export const insertNewUser = async (user: User) => {
 
 export const selectUserByColumn = async (
   property: string,
-  column: "user_id" | "username"
+  column: "user_id" | "username" | "email" | "password_reset_token"
 ) => {
   const user = await db.query(
     `
@@ -64,6 +34,7 @@ export const selectUserByColumn = async (
     `,
     [property]
   );
+
   return user.rows[0];
 };
 
@@ -78,8 +49,6 @@ export const returnAllUsers = async () => {
 };
 
 export const removeUser = async (user_id: number) => {
-  // await checkIfRowExists(user_id, "users");
-
   await db.query(
     `
     DELETE FROM users
