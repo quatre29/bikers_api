@@ -1,4 +1,4 @@
-import { User } from "../data-types/dataTypes";
+import { ReturnedUser, UpdateUser, User } from "../data-types/dataTypes";
 import db from "../db/connection";
 import { checkIfRowExists } from "../utils/check";
 import { encryptPassword } from "../utils/password";
@@ -15,7 +15,7 @@ export const insertNewUser = async (user: User) => {
     (
         $1, $2, $3, $4, $5
     )
-    RETURNING username, name, avatar, email, location, created_at, role, user_id
+    RETURNING username, name, avatar, email, location, created_at, role, user_id;
         `,
     [user.username, user.name, hashPassword, user.email, user.location]
   );
@@ -41,7 +41,8 @@ export const selectUserByColumn = async (
 export const returnAllUsers = async () => {
   const users = await db.query(
     `
-    SELECT * FROM users;
+    SELECT user_id, username, name, email, location, role, created_at, avatar FROM users
+    WHERE active = TRUE;
     `
   );
 
@@ -54,6 +55,53 @@ export const removeUser = async (user_id: number) => {
     DELETE FROM users
     WHERE user_id = $1
     `,
+    [user_id]
+  );
+};
+
+export const updateUser = async (
+  updatedUser: UpdateUser,
+  oldUser: ReturnedUser
+) => {
+  const user = {
+    ...updatedUser,
+    ...oldUser,
+  };
+
+  const updated = await db.query(
+    `
+    UPDATE users
+    SET
+    name = $1,
+    email = $2,
+    location = $3,
+    avatar = $4,
+    username = $5
+    WHERE user_id = $6
+    RETURNING user_id, username, avatar, name, email, location, role, created_at;
+  `,
+    [
+      user.name,
+      user.email,
+      user.location,
+      user.avatar,
+      user.username,
+      user.user_id,
+    ]
+  );
+
+  return updated.rows[0];
+};
+
+export const deactivateUser = async (user_id: number) => {
+  await db.query(
+    `
+    UPDATE users
+    SET
+    active = FALSE
+    WHERE user_id = $1
+    RETURNING *
+  `,
     [user_id]
   );
 };

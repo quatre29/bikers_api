@@ -23,7 +23,7 @@ describe("POST /api/users", () => {
       .send(newUser)
       .expect(201);
 
-    expect(body.user).toEqual(
+    expect(body.data.user).toEqual(
       expect.objectContaining({
         username: "quatre888",
         name: expect.any(String),

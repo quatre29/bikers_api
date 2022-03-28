@@ -18,8 +18,26 @@ import { validatePassword, encryptPassword } from "../utils/password";
 import { signToken } from "../utils/jwt";
 import sendEmail from "../utils/email";
 
+interface CookieOptions {
+  expires: Date;
+  httpOnly: boolean;
+  secure?: boolean;
+}
+
 const createAndSendToken = (user: User, status: number, res: Response) => {
-  const token = signToken(user.user_id!, user.username);
+  const token = signToken(user.user_id!);
+
+  const cookieOptions: CookieOptions = {
+    expires: new Date(
+      Date.now() +
+        Number(process.env.JWT_COOKIE_EXPIRES_IN) * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+
+  res.cookie("jwt", token, cookieOptions);
 
   res.status(status).send({ status: "success", data: { user }, token });
 };

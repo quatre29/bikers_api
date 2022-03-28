@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import AppError from "../errors/AppError";
-import { returnAllUsers, removeUser } from "../models/users.model";
+import {
+  returnAllUsers,
+  removeUser,
+  updateUser,
+  deactivateUser,
+} from "../models/users.model";
 
 import { checkIfRowExists } from "../utils/check";
 
@@ -17,7 +22,50 @@ export const getAllUsers = async (
     if (users.length < 1)
       return next(new AppError("No users could be found", 404));
 
-    res.status(200).send({ status: "success", users });
+    res.status(200).send({ status: "success", data: { users } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//--------------------------------------------------------------------------
+
+export const updateMe = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (req.body.password) {
+      return next(
+        new AppError(
+          "This route is not for password updates, please use updatePassword",
+          400
+        )
+      );
+    }
+
+    const user = await updateUser(req.user, req.body);
+
+    res.status(200).send({ status: "success", data: { user } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//--------------------------------------------------------------------------
+
+export const deactivateMe = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await deactivateUser(req.user.user_id);
+
+    res
+      .status(204)
+      .send({ status: "success", data: null, msg: "Account deactivated" });
   } catch (error) {
     next(error);
   }
@@ -37,7 +85,9 @@ export const deleteUserById = async (
 
     await removeUser(+user_id);
 
-    res.status(204).send({ status: "success", msg: "User deleted" });
+    res
+      .status(204)
+      .send({ status: "success", data: null, msg: "User deleted" });
   } catch (error) {
     next(error);
   }

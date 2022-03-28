@@ -9,7 +9,7 @@
     "seed": "node ./dist/db/seeds/run-seed.js",
     "setup-dbs": "psql -f ./src/db/setup.sql",
     "seed:prod": "",
-    "test": "NODE_ENV=\"test\" jest"
+    "test": "NODE_ENV=\"test\" npm run seed && jest"
   },
   "keywords": [],
   "author": "",
@@ -37,11 +37,14 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
+    "express-rate-limit": "^6.3.0",
+    "helmet": "^5.0.2",
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "nodemailer": "^6.7.3",
     "pg": "^8.7.3",
     "pg-format": "^1.0.4",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "xss-clean": "^0.1.1"
   }
 }

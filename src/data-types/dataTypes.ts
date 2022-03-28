@@ -10,6 +10,14 @@ export type User = {
   created_at?: Date;
 };
 
+export type UpdateUser = {
+  username?: string;
+  avatar?: string;
+  name?: string;
+  email?: string;
+  location?: string;
+};
+
 export type ReturnedUser = {
   user_id: number;
   username: string;
