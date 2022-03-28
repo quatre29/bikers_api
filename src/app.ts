@@ -6,6 +6,9 @@ import AppError from "./errors/AppError";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import xss from "xss-clean";
+import hpp from "hpp";
+import cookieParser from "cookie-parser";
+import morgan from "morgan";
 import "./config";
 
 const app = express();
@@ -21,15 +24,26 @@ const limiter = rateLimit({
 app.use(helmet());
 app.use("/api", limiter);
 
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
+
 //body parser
 app.use(cors());
 app.use(express.json({ limit: "100kb" }));
+app.use(cookieParser());
 
-//Data sanitization for XSS
+//Data sanitization for XSS and parameter pollution
 app.use(xss());
+app.use(
+  hpp({
+    whitelist: [], //whitelist parameters allowed for duplication
+  })
+);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   req.requestTime = new Date().toISOString();
+  console.log(req.cookies);
   next();
 });
 

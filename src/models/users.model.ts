@@ -1,4 +1,9 @@
-import { ReturnedUser, UpdateUser, User } from "../data-types/dataTypes";
+import {
+  FilteringUsers,
+  ReturnedUser,
+  UpdateUser,
+  User,
+} from "../data-types/dataTypes";
 import db from "../db/connection";
 import { checkIfRowExists } from "../utils/check";
 import { encryptPassword } from "../utils/password";
@@ -38,12 +43,54 @@ export const selectUserByColumn = async (
   return user.rows[0];
 };
 
-export const returnAllUsers = async () => {
+export const returnAllUsers = async (
+  page = "1",
+  limit = "10",
+  location: string,
+  role: string,
+  username: string,
+  name: string
+) => {
+  const paramsObj: any = {
+    page,
+    limit,
+    location,
+    role,
+    username,
+    name,
+  };
+
+  const availableData = [
+    ...Object.keys(paramsObj)
+      .filter((key) => {
+        if (paramsObj[key] !== undefined) return key;
+      })
+      .map((el, i) => {
+        if (el !== "page" && el !== "limit") {
+          return `AND ${el} ~* $${i + 1}`;
+        }
+      }),
+  ].join(" ");
+
+  console.log(availableData);
+
+  console.log(
+    ...Object.values(paramsObj).filter((val) => {
+      if (val !== undefined) return val;
+    })
+  );
   const users = await db.query(
     `
     SELECT user_id, username, name, email, location, role, created_at, avatar FROM users
-    WHERE active = TRUE;
-    `
+    WHERE active = true
+    ${availableData}
+    LIMIT $2 OFFSET(($1 - 1) * $2);
+    `,
+    [
+      ...Object.values(paramsObj).filter((val) => {
+        if (val !== undefined) return val;
+      }),
+    ]
   );
 
   return users.rows;

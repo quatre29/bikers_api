@@ -10,6 +10,13 @@ export type User = {
   created_at?: Date;
 };
 
+export type FilteringUsers = {
+  location?: string;
+  role?: "member" | "moderator" | "admin";
+  name?: string;
+  username?: string;
+};
+
 export type UpdateUser = {
   username?: string;
   avatar?: string;

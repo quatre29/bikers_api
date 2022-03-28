@@ -28,7 +28,7 @@ usersRouter.route("/reset_password/:token").patch(resetPassword);
 usersRouter.route("/update_password").patch(isAuthenticated, updatePassword);
 
 usersRouter.route("/login").post(login);
-usersRouter.route("/logout").post(logout);
+// usersRouter.route("/logout").post(logout);
 
 usersRouter
   .route("/:user_id")

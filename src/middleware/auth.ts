@@ -1,17 +1,33 @@
-import express, { NextFunction, Response, Request } from "express";
+import { NextFunction, Response, Request } from "express";
 import { decodeToken, verityToken } from "../utils/jwt";
-import { jwtCustomPayload } from "../utils/types";
 import AppError from "../errors/AppError";
 import { selectUserByColumn } from "../models/users.model";
 import { changedPasswordAfter } from "../models/auth.model";
-// import { JwtPayload } from "jsonwebtoken";
-// import { valid } from "joi";
 
-const hasToken = (req: Request) =>
-  req.headers.authorization &&
-  req.headers.authorization.split(" ")[0] === "Bearer";
+const hasToken = (req: Request) => {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.split(" ")[0] === "Bearer"
+  ) {
+    return true;
+  } else if (req.cookies.jwt) {
+    return true;
+  } else {
+    return false;
+  }
+};
 
-const getToken = (req: Request) => req.headers.authorization?.split(" ")[1];
+const getToken = (req: Request) => {
+  let token;
+
+  if (req.headers.authorization?.startsWith("Bearer")) {
+    token = req.headers.authorization?.split(" ")[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  return token;
+};
 
 export const isAuthenticated = async (
   req: Request,

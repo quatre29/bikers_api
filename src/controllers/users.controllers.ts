@@ -17,7 +17,22 @@ export const getAllUsers = async (
   next: NextFunction
 ) => {
   try {
-    const users = await returnAllUsers();
+    const queryParams = req.query;
+    const page = queryParams["page"] as string;
+    const limit = queryParams["limit"] as string;
+    const location = queryParams["location"] as string;
+    const role = queryParams["role"] as string;
+    const username = queryParams["username"] as string;
+    const name = queryParams["name"] as string;
+
+    const users = await returnAllUsers(
+      page,
+      limit,
+      location,
+      role,
+      username,
+      name
+    );
 
     if (users.length < 1)
       return next(new AppError("No users could be found", 404));
