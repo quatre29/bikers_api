@@ -28,7 +28,7 @@ export const insertNewUser = async (user: User) => {
   return newUser.rows[0];
 };
 
-export const selectUserByColumn = async (
+export const _selectUserByColumn = async (
   property: string,
   column: "user_id" | "username" | "email" | "password_reset_token"
 ) => {
@@ -72,13 +72,6 @@ export const returnAllUsers = async (
       }),
   ].join(" ");
 
-  console.log(availableData);
-
-  console.log(
-    ...Object.values(paramsObj).filter((val) => {
-      if (val !== undefined) return val;
-    })
-  );
   const users = await db.query(
     `
     SELECT user_id, username, name, email, location, role, created_at, avatar FROM users
@@ -151,4 +144,17 @@ export const deactivateUser = async (user_id: number) => {
   `,
     [user_id]
   );
+};
+
+export const selectUserById = async (user_id: string) => {
+  const user = await db.query(
+    `
+    SELECT user_id, username, avatar, name, email, location, role, created_at
+    FROM users
+    WHERE user_id = $1
+    `,
+    [user_id]
+  );
+
+  return user.rows[0];
 };

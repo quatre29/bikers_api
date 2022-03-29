@@ -37,7 +37,7 @@ app.use(cookieParser());
 app.use(xss());
 app.use(
   hpp({
-    whitelist: [], //whitelist parameters allowed for duplication
+    whitelist: ["tag"], //whitelist parameters allowed for duplication
   })
 );
 

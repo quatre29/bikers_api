@@ -59,7 +59,7 @@ const seed = async ({
       body TEXT NOT NULL,
       author VARCHAR(100) REFERENCES users(username) NOT NULL,
       post_banner VARCHAR(255),
-      tags VARCHAR(100)[],
+      tags VARCHAR[],
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 

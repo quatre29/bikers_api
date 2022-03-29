@@ -6,7 +6,6 @@ import db from "../db/connection";
 
 describe("Name of the group", () => {
   it("404: Path not found", async () => {
-    const { body } = await request(app).get("/unknown-path").expect(200);
-    console.log(body, "==============");
+    const { body } = await request(app).get("/unknown-path").expect(404);
   });
 });

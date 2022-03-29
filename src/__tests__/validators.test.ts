@@ -22,6 +22,7 @@ describe("userSchema validation", () => {
   it("should validate with minimum fields ", () => {
     const user: User = {
       name: "Adrian",
+      email: "quatre29@email.com",
       username: "quatre29",
       password: "qawsed",
     };
@@ -36,6 +37,7 @@ describe("userSchema validation", () => {
   it("should not validate without password", () => {
     const user = {
       name: "Adrian",
+      email: "quatre29@email.com",
       username: "quatre29",
     };
 

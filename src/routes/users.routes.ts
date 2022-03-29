@@ -4,6 +4,7 @@ import {
   deleteUserById,
   updateMe,
   deactivateMe,
+  getUserById,
 } from "../controllers/users.controllers";
 
 import {
@@ -32,6 +33,7 @@ usersRouter.route("/login").post(login);
 
 usersRouter
   .route("/:user_id")
+  .get(isAuthenticated, getUserById)
   .delete(isAuthenticated, restrictTo("admin"), deleteUserById);
 
 export default usersRouter;

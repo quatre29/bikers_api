@@ -1,7 +1,7 @@
 import { NextFunction, Response, Request } from "express";
 import { decodeToken, verityToken } from "../utils/jwt";
 import AppError from "../errors/AppError";
-import { selectUserByColumn } from "../models/users.model";
+import { _selectUserByColumn } from "../models/users.model";
 import { changedPasswordAfter } from "../models/auth.model";
 
 const hasToken = (req: Request) => {
@@ -10,8 +10,9 @@ const hasToken = (req: Request) => {
     req.headers.authorization.split(" ")[0] === "Bearer"
   ) {
     return true;
-  } else if (req.cookies.jwt) {
-    return true;
+    //TODO: uncomment for production/fe
+    // } else if (req.cookies.jwt) {
+    //   return true;
   } else {
     return false;
   }
@@ -49,7 +50,7 @@ export const isAuthenticated = async (
       console.log(validToken);
 
       if (validToken) {
-        const currentUser = await selectUserByColumn(
+        const currentUser = await _selectUserByColumn(
           validToken.id.toString(),
           "user_id"
         );

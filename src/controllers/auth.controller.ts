@@ -3,7 +3,7 @@ import { ReturnedUser, User } from "../data-types/dataTypes";
 import AppError from "../errors/AppError";
 import crypto from "crypto";
 import {
-  selectUserByColumn,
+  _selectUserByColumn,
   insertNewUser,
   returnAllUsers,
   removeUser,
@@ -89,7 +89,7 @@ export const forgotPassword = async (
   next: NextFunction
 ) => {
   try {
-    const user = await selectUserByColumn(req.body.email, "email");
+    const user = await _selectUserByColumn(req.body.email, "email");
 
     if (!user) {
       return next(
@@ -143,7 +143,7 @@ export const resetPassword = async (
       .update(req.params.token)
       .digest("hex");
 
-    const user = await selectUserByColumn(hashedToken, "password_reset_token");
+    const user = await _selectUserByColumn(hashedToken, "password_reset_token");
 
     const tokenExpireDate = user?.password_reset_expires.getTime();
 
@@ -205,7 +205,7 @@ export const login = async (
       return next(new AppError("Please provide username and password", 400));
     }
 
-    const user = await selectUserByColumn(username, "username");
+    const user = await _selectUserByColumn(username, "username");
 
     if (!user || !(await validatePassword(password, user.password))) {
       return next(

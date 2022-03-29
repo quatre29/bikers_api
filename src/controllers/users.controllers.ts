@@ -5,6 +5,8 @@ import {
   removeUser,
   updateUser,
   deactivateUser,
+  _selectUserByColumn,
+  selectUserById,
 } from "../models/users.model";
 
 import { checkIfRowExists } from "../utils/check";
@@ -103,6 +105,28 @@ export const deleteUserById = async (
     res
       .status(204)
       .send({ status: "success", data: null, msg: "User deleted" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//--------------------------------------------------------------------------
+
+export const getUserById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { user_id } = req.params;
+
+    const user = await selectUserById(user_id);
+
+    if (!user) {
+      return next(new AppError("User does not exist", 404));
+    }
+
+    res.status(200).send({ status: "success", data: { user } });
   } catch (error) {
     next(error);
   }
