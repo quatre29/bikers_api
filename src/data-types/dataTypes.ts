@@ -41,9 +41,16 @@ export type BlogPost = {
   title: string;
   body: string;
   author: string;
-  post_banner: string;
+  post_banner?: string;
   tags: string[];
-  created_at: Date;
+  created_at?: Date;
+};
+
+export type UpdateBlogPost = {
+  title?: string;
+  body?: string;
+  post_banner?: string;
+  tags?: string[];
 };
 
 export type BlogPostComment = {
@@ -68,3 +75,5 @@ export type LoginCredentials = {
   username: string;
   password: string;
 };
+
+export type UserRole = "admin" | "moderator" | "member";

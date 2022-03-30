@@ -5,6 +5,7 @@ import {
   updateMe,
   deactivateMe,
   getUserById,
+  _changeUserRole,
 } from "../controllers/users.controllers";
 
 import {
@@ -36,4 +37,8 @@ usersRouter
   .get(isAuthenticated, getUserById)
   .delete(isAuthenticated, restrictTo("admin"), deleteUserById);
 
+//TODO: add restrictTo('admin') middleware
+usersRouter
+  .route("/:user_id/change_role")
+  .patch(isAuthenticated, _changeUserRole);
 export default usersRouter;

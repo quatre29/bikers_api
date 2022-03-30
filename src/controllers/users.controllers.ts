@@ -7,9 +7,11 @@ import {
   deactivateUser,
   _selectUserByColumn,
   selectUserById,
+  updateUserRole,
 } from "../models/users.model";
 
 import { checkIfRowExists } from "../utils/check";
+import { validateRoleSchema } from "../utils/validate";
 
 //--------------------------------------------------------------------------
 
@@ -98,7 +100,13 @@ export const deleteUserById = async (
   try {
     const { user_id } = req.params;
 
-    await checkIfRowExists(+user_id, "users", next);
+    const user = await checkIfRowExists(user_id, "users");
+
+    if (!user) {
+      return next(
+        new AppError(`User with id - ${user_id} does not exist`, 404)
+      );
+    }
 
     await removeUser(+user_id);
 
@@ -127,6 +135,35 @@ export const getUserById = async (
     }
 
     res.status(200).send({ status: "success", data: { user } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//--------------------------------------------------------------------------
+
+export const _changeUserRole = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { user_id } = req.params;
+    const { role } = req.body;
+
+    const validRole = validateRoleSchema(role.toLowerCase());
+
+    if (!validRole.valid) {
+      return next(new AppError(validRole.msg!, 400));
+    }
+
+    const user = await updateUserRole(user_id, role.toLowerCase());
+
+    res.status(200).send({
+      status: "success",
+      data: { user },
+      msg: "User's role has been changed",
+    });
   } catch (error) {
     next(error);
   }

@@ -3,6 +3,7 @@ import {
   ReturnedUser,
   UpdateUser,
   User,
+  UserRole,
 } from "../data-types/dataTypes";
 import db from "../db/connection";
 import { checkIfRowExists } from "../utils/check";
@@ -154,6 +155,20 @@ export const selectUserById = async (user_id: string) => {
     WHERE user_id = $1
     `,
     [user_id]
+  );
+
+  return user.rows[0];
+};
+
+export const updateUserRole = async (user_id: string, role: UserRole) => {
+  const user = await db.query(
+    `
+    UPDATE users
+    SET role = $1
+    WHERE user_id = $2
+    RETURNING user_id, username, name, role, avatar, email, location, created_at;
+  `,
+    [role, user_id]
   );
 
   return user.rows[0];

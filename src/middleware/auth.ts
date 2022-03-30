@@ -11,8 +11,8 @@ const hasToken = (req: Request) => {
   ) {
     return true;
     //TODO: uncomment for production/fe
-    // } else if (req.cookies.jwt) {
-    //   return true;
+  } else if (req.cookies.jwt) {
+    return true;
   } else {
     return false;
   }

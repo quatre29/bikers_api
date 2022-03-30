@@ -6,18 +6,25 @@ import {
   getAllBlogPosts,
   getBlogPostById,
   rateBlogPost,
+  getRatingsByBlogPost,
 } from "../controllers/blog-posts.controllers";
 import { isAuthenticated, restrictTo } from "../middleware/auth";
 
 const blogPostsRouter = express.Router();
 
-blogPostsRouter.route("/").get(getAllBlogPosts).post(createBlogPost);
 blogPostsRouter
-  .route("/:blog_post")
-  .get(getBlogPostById)
-  .delete(deleteBlogPost);
+  .route("/")
+  .get(isAuthenticated, getAllBlogPosts)
+  .post(isAuthenticated, createBlogPost);
+blogPostsRouter
+  .route("/:post_id")
+  .get(isAuthenticated, getBlogPostById)
+  .delete(isAuthenticated, deleteBlogPost);
 
-blogPostsRouter.route("/:blog_post/edit").patch(editBlogPost);
-blogPostsRouter.route("/:blog_post/rate").patch(rateBlogPost);
+blogPostsRouter.route("/:post_id/edit").patch(isAuthenticated, editBlogPost);
+blogPostsRouter
+  .route("/:post_id/rating")
+  .post(isAuthenticated, rateBlogPost)
+  .get(isAuthenticated, getRatingsByBlogPost);
 
 export default blogPostsRouter;

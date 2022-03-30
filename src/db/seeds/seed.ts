@@ -57,7 +57,7 @@ const seed = async ({
       post_id SERIAL PRIMARY KEY NOT NULL,
       title VARCHAR(255) NOT NULL,
       body TEXT NOT NULL,
-      author VARCHAR(100) REFERENCES users(username) NOT NULL,
+      author VARCHAR(100) REFERENCES users(username) ON DELETE CASCADE NOT NULL,
       post_banner VARCHAR(255),
       tags VARCHAR[],
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -80,9 +80,10 @@ const seed = async ({
   await db.query(`
     CREATE TABLE ratings (
       rating_id SERIAL PRIMARY KEY NOT NULL,
-      location_id INT REFERENCES blog_posts(post_id),
+      location_id INT REFERENCES blog_posts(post_id) ON DELETE CASCADE NOT NULL,
       author VARCHAR(30) REFERENCES users(username) ON DELETE CASCADE  NOT NULL,
-      rating DECIMAL NOT NULL
+      rating DECIMAL NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
   `);

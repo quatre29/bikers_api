@@ -5,9 +5,8 @@ import AppError from "../errors/AppError";
 type tableProps = "users" | "blog_posts" | "blog_comments" | "ratings";
 
 export const checkIfRowExists = async (
-  id: number,
-  table: tableProps,
-  next: NextFunction
+  id: number | string,
+  table: tableProps
 ) => {
   let table_ref = "";
   let table_name = "";
@@ -37,8 +36,9 @@ export const checkIfRowExists = async (
     [id]
   );
 
-  if (item.rows.length === 0) {
-    console.log(item.rows, "=====================");
-    return next(new AppError(`${table} with id of ${id} does not exist`, 404));
-  }
+  // if (item.rows.length === 0) {
+  //   return next(new AppError(`${table} with id of ${id} does not exist`, 404));
+  // }
+
+  return item.rows[0];
 };
