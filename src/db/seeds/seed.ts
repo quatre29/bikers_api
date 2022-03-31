@@ -71,6 +71,7 @@ const seed = async ({
       author VARCHAR(30) REFERENCES users(username) ON DELETE CASCADE NOT NULL,
       post_id INT REFERENCES blog_posts(post_id) ON DELETE CASCADE NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      edited BOOLEAN NOT NULL DEFAULT FALSE,
       body TEXT NOT NULL
     );
 

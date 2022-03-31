@@ -9,6 +9,7 @@ import {
   getRatingsByBlogPost,
 } from "../controllers/blog-posts.controllers";
 import { isAuthenticated, restrictTo } from "../middleware/auth";
+import blogCommentsRouter from "./blog-comments.routes";
 
 const blogPostsRouter = express.Router();
 
@@ -26,5 +27,7 @@ blogPostsRouter
   .route("/:post_id/rating")
   .post(isAuthenticated, rateBlogPost)
   .get(isAuthenticated, getRatingsByBlogPost);
+
+blogPostsRouter.use("/:post_id/comments", blogCommentsRouter);
 
 export default blogPostsRouter;
