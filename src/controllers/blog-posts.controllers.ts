@@ -188,6 +188,9 @@ export const editBlogPost = async (
   }
 
   const post = await updateBlogPost(updates, post_id);
+  if (!post) {
+    return next(new AppError("Blog post does not exist", 404));
+  }
 
   res.status(200).send({ status: "success", data: { post } });
   try {

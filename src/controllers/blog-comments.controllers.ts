@@ -19,6 +19,12 @@ export const addNewComment = async (
     const { body } = req.body;
     const author = req.user.username;
 
+    const post = await checkIfRowExists(post_id, "blog_posts");
+
+    if (!post) {
+      return next(new AppError("Post cannot be found", 404));
+    }
+
     if (!body) {
       return next(
         new AppError("Body request requires a body for comment", 400)
@@ -49,6 +55,12 @@ export const editBlogComment = async (
     const { body } = req.body;
     const { role, username } = req.user;
 
+    const post = await checkIfRowExists(post_id, "blog_posts");
+
+    if (!post) {
+      return next(new AppError("Post cannot be found", 404));
+    }
+
     if (!body) {
       return next(
         new AppError("Body request requires a body for comment", 400)
@@ -58,7 +70,9 @@ export const editBlogComment = async (
     const commentValid = await selectBlogCommentOnPost(post_id, comment_id);
 
     if (!commentValid) {
-      return next(new AppError("Comment or post could not be found", 404));
+      return next(
+        new AppError("Post not found or comment does not exist on post", 404)
+      );
     }
 
     if (
