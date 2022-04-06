@@ -1,5 +1,5 @@
 \c bikers;
 
 
-SELECT * FROM blog_comments;
+SELECT * FROM forums;
 -- WHERE username = 'quatre888';

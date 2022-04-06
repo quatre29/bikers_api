@@ -35,3 +35,35 @@ export type Rating = {
   author: string;
   rating: number;
 };
+
+export type ForumCategory = {
+  name: string;
+};
+
+export type Forum = {
+  name: string;
+  description: string;
+  category_id: number;
+};
+
+export type SubForum = {
+  name: string;
+  description: string;
+  category_id: number;
+  parent_forum_id: number;
+};
+
+export type Topic = {
+  title: string;
+  forum_id: number;
+  author: string;
+  pinned: boolean;
+  body: string;
+};
+
+export type Reply = {
+  author: string;
+  quote_body: null | string;
+  body: string;
+  topic_id: number;
+};
