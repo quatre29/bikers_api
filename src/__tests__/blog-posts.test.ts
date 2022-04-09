@@ -44,7 +44,7 @@ describe("POST /api/blog-posts", () => {
 
     expect(body.data.post).toEqual(
       expect.objectContaining({
-        post_id: expect.any(Number),
+        post_id: expect.any(String),
         title: expect.any(String),
         author: expect.any(String),
         body: expect.any(String),

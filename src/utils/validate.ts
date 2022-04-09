@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { join } from "path";
 import {
   BlogPost,
   UpdateBlogPost,
@@ -9,6 +10,18 @@ import {
 type ValidatorType = {
   valid: boolean;
   msg?: string;
+};
+
+const validate = (schema: any, validationObj: any) => {
+  const validator = schema.validate(validationObj);
+
+  if (validator.error)
+    return {
+      valid: false,
+      msg: validator.error.message,
+    };
+
+  return { valid: true };
 };
 
 export const validateUserSchema = (user: User): ValidatorType => {
@@ -27,10 +40,7 @@ export const validateUserSchema = (user: User): ValidatorType => {
     name: Joi.string().min(3).max(50),
   });
 
-  const validator = schema.validate(user);
-
-  if (validator.error) return { valid: false, msg: validator.error.message };
-  return { valid: true };
+  return validate(schema, user);
 };
 
 export const validateBlogPostSchema = (blogPost: BlogPost): ValidatorType => {
@@ -42,18 +52,13 @@ export const validateBlogPostSchema = (blogPost: BlogPost): ValidatorType => {
     author: Joi.string().alphanum().min(3).max(30).required(),
   });
 
-  const validator = schema.validate(blogPost);
-  if (validator.error) return { valid: false, msg: validator.error.message };
-  return { valid: true };
+  return validate(schema, blogPost);
 };
 
 export const validateRoleSchema = (role: UserRole) => {
   const schema = Joi.string().valid("admin", "moderator", "member").required();
 
-  const validator = schema.validate(role);
-
-  if (validator.error) return { valid: false, msg: validator.error.message };
-  return { valid: true };
+  return validate(schema, role);
 };
 
 export const validateRatingSchema = (rating: number) => {
@@ -83,13 +88,59 @@ export const validateUpdateBlogPostSchema = (updates: UpdateBlogPost) => {
     post_banner: Joi.string().allow(null),
   });
 
-  const validator = schema.validate(updates);
+  return validate(schema, updates);
+};
 
-  if (validator.error)
-    return {
-      valid: false,
-      msg: validator.error.message,
-    };
+export const validateNewForumCategoryBody = (
+  name: string,
+  admin_only: boolean
+) => {
+  const schema = Joi.object({
+    name: Joi.string().min(3).max(50).required(),
+    admin_only: Joi.boolean(),
+  });
 
-  return { valid: true };
+  return validate(schema, { name, admin_only });
+};
+
+export const validateUpdateForumCategoryBody = (
+  name: string,
+  admin_only: boolean
+) => {
+  const schema = Joi.object({
+    name: Joi.string().min(3).max(50),
+    admin_only: Joi.boolean(),
+  });
+
+  return validate(schema, { name, admin_only });
+};
+
+export const validateNewForum = (
+  name: string,
+  description: string,
+  parent_forum_id?: string
+) => {
+  const schema = Joi.object({
+    name: Joi.string().min(3).max(50).required(),
+    description: Joi.string().max(255),
+    parent_forum_id: Joi.number(),
+  });
+
+  return validate(schema, { name, description, parent_forum_id });
+};
+
+export const validateForumUpdateBody = (
+  name: string,
+  description: string,
+  parent_forum_id: string,
+  category_id: string
+) => {
+  const schema = Joi.object({
+    name: Joi.string().min(3).max(50),
+    description: Joi.string().max(255),
+    parent_forum_id: Joi.number(),
+    category_id: Joi.number(),
+  });
+
+  return validate(schema, { name, description, parent_forum_id, category_id });
 };

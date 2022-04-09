@@ -2,7 +2,13 @@ import { NextFunction } from "express";
 import db from "../db/connection";
 import AppError from "../errors/AppError";
 
-type tableProps = "users" | "blog_posts" | "blog_comments" | "ratings";
+type tableProps =
+  | "users"
+  | "blog_posts"
+  | "blog_comments"
+  | "ratings"
+  | "forum_categories"
+  | "forums";
 
 export const checkIfRowExists = async (
   id: number | string,
@@ -26,6 +32,14 @@ export const checkIfRowExists = async (
       break;
     case "ratings":
       table_ref = "rating_id";
+      table_name = table;
+      break;
+    case "forum_categories":
+      table_ref = "category_id";
+      table_name = table;
+      break;
+    case "forums":
+      table_ref = "forum_id";
       table_name = table;
       break;
   }

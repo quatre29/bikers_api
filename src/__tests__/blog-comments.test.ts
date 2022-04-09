@@ -41,9 +41,9 @@ describe("POST /api/blog-posts/:post_id/comments", () => {
 
     expect(body.data.comment).toEqual(
       expect.objectContaining({
-        comment_id: expect.any(Number),
+        comment_id: expect.any(String),
         author: "quatre888",
-        post_id: expect.any(Number),
+        post_id: expect.any(String),
         edited: false,
         body: "NEW COMMENT!",
       })
@@ -186,7 +186,7 @@ describe("GET /api/blog-posts/:post_id/comments", () => {
       .expect(200);
 
     body.data.comments.forEach((comment: any) => {
-      expect(comment.post_id).toBe(2);
+      expect(comment.post_id).toBe("2");
     });
   });
 

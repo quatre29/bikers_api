@@ -38,6 +38,7 @@ export type Rating = {
 
 export type ForumCategory = {
   name: string;
+  admin_only?: boolean;
 };
 
 export type Forum = {
@@ -49,7 +50,6 @@ export type Forum = {
 export type SubForum = {
   name: string;
   description: string;
-  category_id: number;
   parent_forum_id: number;
 };
 

@@ -121,6 +121,7 @@ const seed = async ({
   await db.query(`
       CREATE TABLE forum_categories (
         category_id BIGSERIAL PRIMARY KEY NOT NULL,
+        admin_only BOOLEAN DEFAULT FALSE,
         name VARCHAR(50) NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
@@ -306,14 +307,13 @@ const seed = async ({
   const insertSubForums = format(
     `
     INSERT INTO forums
-    (name, description, category_id, parent_forum_id)
+    (name, description, parent_forum_id)
     VALUES
     %L;
     `,
-    subForums.map(({ name, description, category_id, parent_forum_id }) => [
+    subForums.map(({ name, description, parent_forum_id }) => [
       name,
       description,
-      category_id,
       parent_forum_id,
     ])
   );
