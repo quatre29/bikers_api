@@ -13,6 +13,7 @@ import {
   updateForum,
 } from "../controllers/forums.controllers";
 import { isAuthenticated, restrictTo } from "../middleware/auth";
+import forumTopicsRouter from "./forum-topics.routes";
 
 const forumsRouter = express.Router();
 
@@ -53,5 +54,7 @@ forumsRouter
   .route("/:forum_id/sub-forums")
   .get(isAuthenticated, getSubForumsByForumId)
   .post(isAuthenticated, restrictTo("admin", "moderator"), addNewSubForum);
+
+forumsRouter.use("/:forum_id/topics", forumTopicsRouter);
 
 export default forumsRouter;

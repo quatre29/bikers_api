@@ -3,7 +3,7 @@ import seed from "../db/seeds/seed";
 import request from "supertest";
 import app from "../app";
 import db from "../db/connection";
-import { LoginCredentials, User } from "../data-types/dataTypes";
+import { User } from "../data-types/dataTypes";
 
 beforeAll(() => seed(testData));
 afterAll(() => db.end());

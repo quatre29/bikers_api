@@ -8,7 +8,8 @@ type tableProps =
   | "blog_comments"
   | "ratings"
   | "forum_categories"
-  | "forums";
+  | "forums"
+  | "forum_topics";
 
 export const checkIfRowExists = async (
   id: number | string,
@@ -36,6 +37,10 @@ export const checkIfRowExists = async (
       break;
     case "forum_categories":
       table_ref = "category_id";
+      table_name = table;
+      break;
+    case "forum_topics":
+      table_ref = "topic_id";
       table_name = table;
       break;
     case "forums":

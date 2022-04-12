@@ -161,6 +161,7 @@ const seed = async ({
     votes INT DEFAULT 0,
     author VARCHAR(30) REFERENCES users(username) ON DELETE CASCADE  NOT NULL,
     pinned BOOLEAN DEFAULT FALSE,
+    locked BOOLEAN DEFAULT FALSE,
     body TEXT NOT NULL
   )
 `);

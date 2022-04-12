@@ -144,3 +144,41 @@ export const validateForumUpdateBody = (
 
   return validate(schema, { name, description, parent_forum_id, category_id });
 };
+
+export const validateNewTopicBody = (
+  title: string,
+  pinned: boolean,
+  body: string,
+  forum_id: string
+) => {
+  const schema = Joi.object({
+    title: Joi.string().min(3).max(50).required(),
+    pinned: Joi.boolean(),
+    body: Joi.string().min(3).required(),
+    forum_id: Joi.number().required(),
+  });
+
+  return validate(schema, { title, pinned, body, forum_id });
+};
+
+export const validateUpdateTopicBody = (
+  title: string,
+  pinned: boolean,
+  body: string
+) => {
+  const schema = Joi.object({
+    title: Joi.string().min(3).max(50),
+    pinned: Joi.boolean(),
+    body: Joi.string().min(3),
+  });
+
+  return validate(schema, { title, pinned, body });
+};
+
+export const validateLockTopicBody = (locked: boolean) => {
+  const schema = Joi.object({
+    locked: Joi.boolean().required(),
+  });
+
+  return validate(schema, { locked });
+};

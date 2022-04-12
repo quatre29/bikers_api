@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { nextTick } from "process";
 import AppError from "../errors/AppError";
 import {
   addNewForumCategory,
