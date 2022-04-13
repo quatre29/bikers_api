@@ -182,3 +182,29 @@ export const validateLockTopicBody = (locked: boolean) => {
 
   return validate(schema, { locked });
 };
+
+export const validateNewReplyBody = (topic_id: string, body: string) => {
+  const schema = Joi.object({
+    topic_id: Joi.number().required(),
+    body: Joi.string().min(1).required(),
+  });
+
+  return validate(schema, { topic_id, body });
+};
+
+export const validateUpdateReplyBody = (reply_id: string, body: string) => {
+  const schema = Joi.object({
+    reply_id: Joi.number().required(),
+    body: Joi.string().min(1).required(),
+  });
+
+  return validate(schema, { reply_id, body });
+};
+
+export const validateRepliesByTopicBody = (topic_id: string) => {
+  const schema = Joi.object({
+    topic_id: Joi.number().required(),
+  });
+
+  return validate(schema, { topic_id });
+};

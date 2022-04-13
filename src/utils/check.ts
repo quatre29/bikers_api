@@ -1,6 +1,4 @@
-import { NextFunction } from "express";
 import db from "../db/connection";
-import AppError from "../errors/AppError";
 
 type tableProps =
   | "users"
@@ -9,7 +7,8 @@ type tableProps =
   | "ratings"
   | "forum_categories"
   | "forums"
-  | "forum_topics";
+  | "forum_topics"
+  | "topic_replies";
 
 export const checkIfRowExists = async (
   id: number | string,
@@ -43,6 +42,10 @@ export const checkIfRowExists = async (
       table_ref = "topic_id";
       table_name = table;
       break;
+    case "topic_replies":
+      table_ref = "reply_id";
+      table_name = table;
+      break;
     case "forums":
       table_ref = "forum_id";
       table_name = table;
@@ -54,10 +57,6 @@ export const checkIfRowExists = async (
     `,
     [id]
   );
-
-  // if (item.rows.length === 0) {
-  //   return next(new AppError(`${table} with id of ${id} does not exist`, 404));
-  // }
 
   return item.rows[0];
 };
