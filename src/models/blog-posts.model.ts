@@ -105,19 +105,13 @@ export const selectAllBlogPosts = async (
       }),
   ].join(" ");
 
-  // console.log(availableData, "===");
-  // console.log(
-  //   ...Object.values(paramsObj)
-  //     .filter((val) => {
-  //       if (val !== undefined) return val;
-  //     })
-  //     .flat()
-  // );
-
   const posts = await db.query(
     `
-        SELECT * FROM blog_posts
+        SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating 
+        FROM blog_posts
+        LEFT JOIN ratings ON ratings.post_id = blog_posts.post_id
         ${availableData}
+        GROUP BY blog_posts.post_id
         LIMIT $2 OFFSET(($1 - 1) * $2);
     `,
     [
@@ -136,8 +130,11 @@ export const selectAllBlogPosts = async (
 export const selectBlogPostById = async (post_id: string) => {
   const post = await db.query(
     `
-    SELECT * FROM blog_posts
-    WHERE post_id = $1;
+    SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating 
+    FROM blog_posts
+    LEFT JOIN ratings ON ratings.post_id = blog_posts.post_id
+    WHERE blog_posts.post_id = $1
+    GROUP BY blog_posts.post_id;
   `,
     [post_id]
   );
@@ -157,34 +154,94 @@ export const removeBlogPostById = async (post_id: string) => {
 
 export const insertBlogPostRating = async (
   post_id: string,
-  author: string,
-  rating: number
+  user_id: string,
+  rating: string
 ) => {
-  const ratingRow = await db.query(
-    `
-    INSERT INTO ratings
-    (location_id, author, rating)
-    VALUES
-    (
-      $1, $2, $3
-    )
-    RETURNING *;
-  `,
-    [post_id, author, rating]
-  );
+  let ratingRow;
 
+  const checkIfRatingExists = await db.query(
+    `
+    SELECT * FROM ratings
+    WHERE post_id = $1 AND user_id = $2;  
+  `,
+    [post_id, user_id]
+  );
+  if (!checkIfRatingExists.rows[0]) {
+    ratingRow = await db.query(
+      `
+      WITH inserted_rating AS (
+        INSERT INTO ratings
+        (post_id, user_id, rating)
+        VALUES
+        (
+          $1, $2, $3
+        )
+        RETURNING *
+      )    SELECT inserted_rating.*, blog_posts.title, blog_posts.author, blog_posts.tags FROM inserted_rating
+            LEFT JOIN blog_posts ON blog_posts.post_id = inserted_rating.post_id
+            ORDER BY inserted_rating.created_at;
+    `,
+      [post_id, user_id, rating]
+    );
+  } else {
+    ratingRow = await db.query(
+      `
+      WITH inserted_rating AS (
+        UPDATE ratings
+        SET rating = $1
+        WHERE post_id = $2 AND user_id = $3
+        RETURNING *
+      )    SELECT inserted_rating.*, blog_posts.title, blog_posts.author, blog_posts.tags FROM inserted_rating
+            LEFT JOIN blog_posts ON blog_posts.post_id = inserted_rating.post_id
+            ORDER BY inserted_rating.created_at;
+    `,
+      [rating, post_id, user_id]
+    );
+  }
   return ratingRow.rows[0];
 };
 
 export const selectRatingsByBlogPost = async (post_id: string) => {
-  console.log(post_id);
   const ratings = await db.query(
     `
-    SELECT * FROM ratings
-    WHERE location_id = $1;
+    SELECT ratings.*, blog_posts.title, blog_posts.author, blog_posts.tags 
+    FROM ratings
+    LEFT JOIN blog_posts ON blog_posts.post_id = ratings.post_id
+    WHERE ratings.post_id = $1
+    ORDER BY ratings.created_at;
   `,
     [post_id]
   );
 
   return ratings.rows;
+};
+
+export const selectRatingsByUser = async (user_id: string) => {
+  const ratings = await db.query(
+    `
+    SELECT ratings.*, blog_posts.title, blog_posts.author, blog_posts.tags 
+    FROM ratings
+    LEFT JOIN blog_posts ON blog_posts.post_id = ratings.post_id
+    WHERE ratings.user_id = $1
+    ORDER BY ratings.created_at;
+  `,
+    [user_id]
+  );
+
+  return ratings.rows;
+};
+
+export const selectMyBlogPostRating = async (
+  post_id: string,
+  user_id: string
+) => {
+  const rating = await db.query(
+    `
+    SELECT * FROM ratings
+    WHERE user_id = $1 AND post_id = $2;
+  `,
+    [user_id, post_id]
+  );
+
+  return rating.rows[0];
 };

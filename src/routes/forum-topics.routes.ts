@@ -2,10 +2,12 @@ import express from "express";
 import {
   createNewTopic,
   editTopic,
+  getMyTopicVote,
   getTopicById,
   getTopicsByForumId,
   lockTopic,
   removeTopic,
+  voteTopic,
   _getALlTopics,
 } from "../controllers/forum-topics.controllers";
 import { isAuthenticated, restrictTo } from "../middleware/auth";
@@ -30,5 +32,11 @@ forumTopicsRouter
 forumTopicsRouter
   .route("/:topic_id/lock")
   .patch(isAuthenticated, restrictTo("admin", "moderator"), lockTopic);
+
+forumTopicsRouter.route("/:topic_id/vote").post(isAuthenticated, voteTopic);
+
+forumTopicsRouter
+  .route("/:topic_id/my-vote")
+  .get(isAuthenticated, getMyTopicVote);
 
 export default forumTopicsRouter;

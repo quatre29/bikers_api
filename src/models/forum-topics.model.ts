@@ -1,5 +1,6 @@
 import db from "../db/connection";
 import format from "pg-format";
+import { validateRoleSchema } from "../utils/validate";
 
 export const insertNewTopic = async (
   forum_id: string,
@@ -25,8 +26,17 @@ export const insertNewTopic = async (
 export const selectTopicById = async (topic_id: string) => {
   const topic = await db.query(
     `
-        SELECT * FROM forum_topics
-        WHERE topic_id = $1;
+        SELECT forum_topics.*, sum( 
+          case topic_votes.vote
+            WHEN TRUE THEN 1
+            WHEN FALSE THEN -1
+            ELSE 0
+            END
+         ) as votes, count(topic_votes.*) as votes_count FROM forum_topics
+        LEFT JOIN topic_votes ON topic_votes.topic_id = forum_topics.topic_id
+        WHERE forum_topics.topic_id = $1
+        GROUP BY forum_topics.topic_id
+        ORDER BY forum_topics.created_at;
     `,
     [topic_id]
   );
@@ -45,8 +55,17 @@ export const getAllTopics = async () => {
 export const selectTopicsByForum = async (forum_id: string) => {
   const topics = await db.query(
     `
-        SELECT * FROM forum_topics
-        WHERE forum_id = $1;
+        SELECT forum_topics.*, sum( 
+          case topic_votes.vote
+            WHEN TRUE THEN 1
+            WHEN FALSE THEN -1
+            ELSE 0
+            END
+          ) as votes, count(topic_votes.*) as votes_count FROM forum_topics
+        LEFT JOIN topic_votes ON topic_votes.topic_id = forum_topics.topic_id
+        WHERE forum_topics.forum_id = $1
+        GROUP BY forum_topics.topic_id
+        ORDER BY forum_topics.created_at;
     `,
     [forum_id]
   );
@@ -103,4 +122,57 @@ export const updateLockTopic = async (topic_id: string, locked: boolean) => {
   return topic.rows[0];
 };
 
-export const updateVoteTopic = async (topic_id: string) => {};
+export const InsertNewVoteTopic = async (
+  topic_id: string,
+  user_id: string,
+  vote: boolean
+) => {
+  let voteRow: any;
+
+  const existentVote = await db.query(
+    `
+    SELECT * FROM topic_votes
+    WHERE topic_id = $1 AND user_id = $2;  
+  `,
+    [topic_id, user_id]
+  );
+
+  if (!existentVote.rows[0]) {
+    voteRow = await db.query(
+      `
+      INSERT INTO topic_votes
+      (topic_id, user_id, vote)
+      VALUES
+      (
+        $1, $2, $3
+      )
+      RETURNING *;
+    `,
+      [topic_id, user_id, vote]
+    );
+  } else {
+    voteRow = await db.query(
+      `
+      UPDATE topic_votes
+      SET vote = $1
+      WHERE user_id = $2 AND topic_id = $3
+      RETURNING *;
+    `,
+      [vote, user_id, topic_id]
+    );
+  }
+
+  return voteRow.rows[0];
+};
+
+export const selectMyTopicVote = async (topic_id: string, user_id: string) => {
+  const vote = await db.query(
+    `
+    SELECT * FROM topic_votes
+    WHERE topic_id = $1 AND user_id = $2;
+  `,
+    [topic_id, user_id]
+  );
+
+  return vote.rows[0];
+};

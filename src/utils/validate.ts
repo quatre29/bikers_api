@@ -62,12 +62,7 @@ export const validateRoleSchema = (role: UserRole) => {
 };
 
 export const validateRatingSchema = (rating: number) => {
-  const schema = Joi.number()
-    .precision(1)
-    .positive()
-    .min(0.5)
-    .max(5)
-    .required();
+  const schema = Joi.number().integer().positive().min(1).max(5).required();
 
   const validator = schema.validate(rating, { convert: true });
 
@@ -207,4 +202,12 @@ export const validateRepliesByTopicBody = (topic_id: string) => {
   });
 
   return validate(schema, { topic_id });
+};
+
+export const validateVoteTopicBody = (vote: string) => {
+  const schema = Joi.object({
+    vote: Joi.boolean().required(),
+  });
+
+  return validate(schema, { vote });
 };

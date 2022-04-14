@@ -4,17 +4,19 @@ import {
   deleteTopic,
   getAllTopics,
   insertNewTopic,
+  InsertNewVoteTopic,
+  selectMyTopicVote,
   selectTopicById,
   selectTopicsByForum,
   updateLockTopic,
   updateTopic,
-  updateVoteTopic,
 } from "../models/forum-topics.model";
 import { checkIfRowExists } from "../utils/check";
 import {
   validateLockTopicBody,
   validateNewTopicBody,
   validateUpdateTopicBody,
+  validateVoteTopicBody,
 } from "../utils/validate";
 
 export const createNewTopic = async (
@@ -239,10 +241,33 @@ export const voteTopic = async (
 ) => {
   try {
     const { topic_id } = req.params;
+    const { vote } = req.body;
 
-    const topic = await updateVoteTopic(topic_id);
+    const validBody = validateVoteTopicBody(vote);
+
+    if (!validBody.valid) {
+      return next(new AppError(validBody.msg!, 400));
+    }
+
+    const topic = await InsertNewVoteTopic(topic_id, req.user.user_id, vote);
 
     res.status(200).send({ status: "success", data: { topic } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMyTopicVote = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { topic_id } = req.params;
+
+    const vote = await selectMyTopicVote(topic_id, req.user.user_id);
+
+    res.status(200).send({ status: "success", data: { vote } });
   } catch (error) {
     next(error);
   }

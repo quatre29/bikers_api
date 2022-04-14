@@ -38,9 +38,10 @@ const seed = async ({
   subForums,
   topics,
 }: seedProps) => {
-  await db.query(`DROP TABLE IF EXISTS sub_topic_replies`);
-  await db.query(`DROP TABLE IF EXISTS sub_forum_topics`);
+  // await db.query(`DROP TABLE IF EXISTS sub_topic_replies`);
+  // await db.query(`DROP TABLE IF EXISTS sub_forum_topics`);
   await db.query(`DROP TABLE IF EXISTS topic_replies`);
+  await db.query(`DROP TABLE IF EXISTS topic_votes`);
   await db.query(`DROP TABLE IF EXISTS forum_topics`);
   await db.query(`DROP TABLE IF EXISTS sub_forums`);
   await db.query(`DROP TABLE IF EXISTS forums`);
@@ -49,17 +50,11 @@ const seed = async ({
   await db.query(`DROP TABLE IF EXISTS ratings`);
   await db.query(`DROP TABLE IF EXISTS tags`);
   await db.query(`DROP TABLE IF EXISTS blog_comments`);
+  await db.query(`DROP TABLE IF EXISTS blog_bookmarks`);
   await db.query(`DROP TABLE IF EXISTS blog_posts`);
   await db.query(`DROP TABLE IF EXISTS users`);
 
   // await db.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto`);
-
-  // await db.query(`
-  //   CREATE TABLE tags (
-  //     slug VARCHAR(30) UNIQUE PRIMARY KEY NOT NULL,
-  //     description TEXT NOT NULL
-  //   );
-  // `);
 
   await db.query(`
       CREATE TABLE users (
@@ -87,9 +82,19 @@ const seed = async ({
       author VARCHAR(100) REFERENCES users(username) ON DELETE CASCADE NOT NULL,
       post_banner VARCHAR(255),
       tags VARCHAR[],
+      avg_rating FLOAT,
+      ratings_count INT DEFAULT 0 NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
+  `);
+
+  await db.query(`
+      CREATE TABLE blog_bookmarks (
+        user_id BIGINT REFERENCES users(user_id) ON DELETE CASCADE NOT NULL,
+        post_id BIGINT REFERENCES blog_posts(post_id) ON DELETE CASCADE NOT NULL,
+        PRIMARY KEY (user_id, post_id)   
+      );
   `);
 
   await db.query(`
@@ -105,16 +110,25 @@ const seed = async ({
 
   `);
 
-  await db.query(`
-    CREATE TABLE ratings (
-      rating_id BIGSERIAL PRIMARY KEY NOT NULL,
-      location_id BIGINT REFERENCES blog_posts(post_id) ON DELETE CASCADE NOT NULL,
-      author VARCHAR(30) REFERENCES users(username) ON DELETE CASCADE  NOT NULL,
-      rating DECIMAL NOT NULL,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
+  // await db.query(`
+  //   CREATE TABLE ratings (
+  //     rating_id BIGSERIAL PRIMARY KEY NOT NULL,
+  //     location_id BIGINT REFERENCES blog_posts(post_id) ON DELETE CASCADE NOT NULL,
+  //     author VARCHAR(30) REFERENCES users(username) ON DELETE CASCADE  NOT NULL,
+  //     rating DECIMAL NOT NULL,
+  //     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  //   );
+  // `);
 
-  `);
+  await db.query(`
+  CREATE TABLE ratings (
+    post_id BIGINT REFERENCES blog_posts(post_id) ON DELETE CASCADE NOT NULL,
+    user_id BIGINT REFERENCES users(user_id) ON DELETE CASCADE  NOT NULL,
+    rating INT NOT NULL CHECK (rating > 0 and rating < 6),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (post_id, user_id)
+  );
+`);
 
   //-----------------------------------------------------------------------------------------------
 
@@ -127,8 +141,6 @@ const seed = async ({
       )
   `);
 
-  // topics INT DEFAULT 0,
-  // replies INT DEFAULT 0,
   await db.query(`
       CREATE TABLE forums (
         forum_id BIGSERIAL PRIMARY KEY NOT NULL,
@@ -139,18 +151,6 @@ const seed = async ({
         category_id BIGINT REFERENCES forum_categories(category_id)
       )
   `);
-
-  // topics INT DEFAULT 0,
-  // replies INT DEFAULT 0,
-  //   await db.query(`
-  //     CREATE TABLE sub_forums (
-  //       sub_forum_id BIGSERIAL PRIMARY KEY NOT NULL,
-  //       name VARCHAR(50) NOT NULL,
-  //       description VARCHAR(255),
-  //       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  //       forum_id BIGINT REFERENCES forums(id)
-  //     )
-  // `);
 
   await db.query(`
   CREATE TABLE forum_topics (
@@ -167,6 +167,16 @@ const seed = async ({
 `);
 
   await db.query(`
+    CREATE TABLE topic_votes (
+      topic_id BIGINT REFERENCES forum_topics(topic_id) ON DELETE CASCADE NOT NULL,
+      user_id BIGINT REFERENCES users(user_id) ON DELETE CASCADE  NOT NULL,
+      vote BOOLEAN NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (topic_id, user_id)
+    )
+  `);
+
+  await db.query(`
     CREATE TABLE topic_replies (
       reply_id BIGSERIAL PRIMARY KEY NOT NULL,
       author VARCHAR(30) REFERENCES users(username) ON DELETE CASCADE  NOT NULL,
@@ -176,42 +186,6 @@ const seed = async ({
       topic_id BIGINT REFERENCES forum_topics(topic_id) ON DELETE CASCADE NOT NULL
     )
 `);
-
-  //   await db.query(`
-  //     CREATE TABLE sub_forum_topics (
-  //       sub_topic_id BIGSERIAL PRIMARY KEY NOT NULL,
-  //       title VARCHAR(50) NOT NULL,
-  //       sub_forum_id BIGINT REFERENCES sub_forums(id) ON DELETE CASCADE NOT NULL,
-  //       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  //       votes INT DEFAULT 0,
-  //       author VARCHAR(30) REFERENCES users(username) ON DELETE CASCADE  NOT NULL,
-  //       pinned BOOLEAN DEFAULT FALSE,
-  //       body TEXT NOT NULL
-
-  //     )
-  // `);
-
-  //   await db.query(`
-  //     CREATE TABLE sub_topic_replies (
-  //       sub_reply_id BIGSERIAL PRIMARY KEY NOT NULL,
-  //       author VARCHAR(30) REFERENCES users(username) ON DELETE CASCADE  NOT NULL,
-  //       quote_body TEXT,
-  //       body TEXT NOT NULL,
-  //       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  //       sub_topic_id BIGINT REFERENCES sub_forum_topics(id) ON DELETE CASCADE NOT NULL
-  //     )
-  // `);
-
-  // const insertTags = format(
-  //   `
-  //     INSERT INTO tags
-  //     (slug, description)
-  //     VALUES
-  //     %L
-  //     RETURNING slug, description;
-  // `,
-  //   tags.map(({ slug, description }) => [slug, description])
-  // );
 
   const insertUsers = format(
     `
@@ -264,20 +238,20 @@ const seed = async ({
     )
   );
 
-  const insertRatings = format(
-    `
-      INSERT INTO ratings
-      (location_id, author, rating)
-      VALUES
-      %L
-      RETURNING location_id, author, rating;
-  `,
-    ratings.map(({ location_id, author, rating }: Rating) => [
-      location_id,
-      author,
-      rating,
-    ])
-  );
+  // const insertRatings = format(
+  //   `
+  //     INSERT INTO ratings
+  //     (location_id, author, rating)
+  //     VALUES
+  //     %L
+  //     RETURNING location_id, author, rating;
+  // `,
+  //   ratings.map(({ location_id, author, rating }: Rating) => [
+  //     location_id,
+  //     author,
+  //     rating,
+  //   ])
+  // );
 
   //----------------------------FORUM----------------------------------------
 
@@ -376,7 +350,7 @@ const seed = async ({
     await db.query(insertBlogPost);
   }
   await db.query(insertBlogComments);
-  await db.query(insertRatings);
+  // await db.query(insertRatings);
 
   await db.query(insertForumCategories);
   await db.query(insertForums);

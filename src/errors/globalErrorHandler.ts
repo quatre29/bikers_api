@@ -47,18 +47,32 @@ export default (
     process.env.NODE_ENV === "development" ||
     process.env.NODE_ENV === "test"
   ) {
-    sendErrorDev(err, res);
+    let error = Object.assign(err);
+
+    if (error.code === "22P02") error = new AppError(error.message, 400);
+    if (error.code === "23505") {
+      error = new AppError(error.message, 400);
+    }
+    if (error.code === "23503") {
+      error = new AppError(error.message, 404);
+    }
+
+    sendErrorDev(error, res);
   } else if (process.env.NODE_ENV === "production") {
     let error = Object.assign(err);
 
     if (error.name === "JsonWebTokenError") error = handleJWTError();
     if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
-    if (error.name === "22P02") error = new AppError("Invalid input", 400);
-    if (error.name === "23505")
+    if (error.code === "22P02") error = new AppError("Invalid input", 400);
+    if (error.code === "23505") {
       error = new AppError(
         "You cannot have duplicate values in unique columns",
         400
       );
+    }
+    if (error.code === "23503") {
+      error = new AppError("Properties referenced does not exist", 404);
+    }
 
     sendErrorProduction(error, res);
   }

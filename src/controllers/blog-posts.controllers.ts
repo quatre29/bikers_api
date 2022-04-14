@@ -7,7 +7,9 @@ import {
   removeBlogPostById,
   selectAllBlogPosts,
   selectBlogPostById,
+  selectMyBlogPostRating,
   selectRatingsByBlogPost,
+  selectRatingsByUser,
   updateBlogPost,
 } from "../models/blog-posts.model";
 import { checkIfRowExists } from "../utils/check";
@@ -141,11 +143,43 @@ export const rateBlogPost = async (
 
     const newRating = await insertBlogPostRating(
       post_id,
-      req.user.username,
+      req.user.user_id,
       validRating.value
     );
 
     res.status(201).send({ status: "success", data: { rating: newRating } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRatingsByUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { user_id } = req.params;
+
+    const ratings = await selectRatingsByUser(user_id);
+
+    res.status(201).send({ status: "success", data: { ratings } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMyBlogPostRating = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { post_id } = req.params;
+
+    const rating = await selectMyBlogPostRating(post_id, req.user.user_id);
+
+    res.status(201).send({ status: "success", data: { rating } });
   } catch (error) {
     next(error);
   }
@@ -161,10 +195,6 @@ export const getRatingsByBlogPost = async (
 
     const ratings = await selectRatingsByBlogPost(post_id);
 
-    if (ratings.length < 1) {
-      return next(new AppError("No ratings could be found", 404));
-    }
-
     res.status(200).send({ status: "success", data: { ratings } });
   } catch (error) {
     next(error);
@@ -176,24 +206,24 @@ export const editBlogPost = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { post_id } = req.params;
-  const updates = {
-    ...req.body,
-  };
-
-  const validUpdates = validateUpdateBlogPostSchema(updates);
-
-  if (!validUpdates.valid) {
-    return next(new AppError(validUpdates.msg!, 400));
-  }
-
-  const post = await updateBlogPost(updates, post_id);
-  if (!post) {
-    return next(new AppError("Blog post does not exist", 404));
-  }
-
-  res.status(200).send({ status: "success", data: { post } });
   try {
+    const { post_id } = req.params;
+    const updates = {
+      ...req.body,
+    };
+
+    const validUpdates = validateUpdateBlogPostSchema(updates);
+
+    if (!validUpdates.valid) {
+      return next(new AppError(validUpdates.msg!, 400));
+    }
+
+    const post = await updateBlogPost(updates, post_id);
+    if (!post) {
+      return next(new AppError("Blog post does not exist", 404));
+    }
+
+    res.status(200).send({ status: "success", data: { post } });
   } catch (error) {
     next(error);
   }

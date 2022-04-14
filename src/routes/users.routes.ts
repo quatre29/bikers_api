@@ -17,6 +17,8 @@ import {
   updatePassword,
 } from "../controllers/auth.controller";
 import { isAuthenticated, restrictTo } from "../middleware/auth";
+import { getBookmarksByUser } from "../controllers/blog-bookmarks.controllers";
+import { getRatingsByUser } from "../controllers/blog-posts.controllers";
 
 const usersRouter = express.Router();
 
@@ -36,6 +38,12 @@ usersRouter
   .route("/:user_id")
   .get(isAuthenticated, getUserById)
   .delete(isAuthenticated, restrictTo("admin"), deleteUserById);
+
+usersRouter
+  .route("/:user_id/bookmarks")
+  .get(isAuthenticated, getBookmarksByUser);
+
+usersRouter.route("/:user_id/ratings").get(isAuthenticated, getRatingsByUser);
 
 //TODO: add restrictTo('admin') middleware
 usersRouter
