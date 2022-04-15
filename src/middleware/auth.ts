@@ -47,8 +47,6 @@ export const isAuthenticated = async (
         exp: number;
       };
 
-      console.log(validToken);
-
       if (validToken) {
         const currentUser = await _selectUserByColumn(
           validToken.id.toString(),

@@ -8,6 +8,7 @@ export type User = {
   role?: string;
   password?: string;
   created_at?: Date;
+  active?: Boolean;
 };
 
 export type FilteringUsers = {

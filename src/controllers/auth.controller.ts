@@ -24,7 +24,14 @@ interface CookieOptions {
   secure?: boolean;
 }
 
-const createAndSendToken = (user: User, status: number, res: Response) => {
+const ALLOWED_ORIGINS = ["http://localhost:9090/"];
+
+const createAndSendToken = (
+  user: User,
+  status: number,
+  res: Response,
+  req: Request
+) => {
   const token = signToken(user.user_id!);
 
   const cookieOptions: CookieOptions = {
@@ -39,7 +46,27 @@ const createAndSendToken = (user: User, status: number, res: Response) => {
 
   res.cookie("jwt", token, cookieOptions);
 
-  res.status(status).send({ status: "success", data: { user }, token });
+  // if (ALLOWED_ORIGINS.indexOf(req.headers.origin!) > -1) {
+  //   res.set("Access-Control-Allow-Credentials", "true");
+  //   res.set("Access-Control-Allow-Origin", req.headers.origin);
+  // } else {
+  //   // allow other origins to make unauthenticated CORS requests
+  //   res.set("Access-Control-Allow-Origin", "*");
+  // }
+
+  res.status(status).send({
+    status: "success",
+    data: {
+      user_id: user.user_id,
+      username: user.username,
+      avatar: user.avatar,
+      name: user.name,
+      email: user.email,
+      location: user.location,
+      role: user.role,
+      active: user.active,
+    },
+  });
 };
 
 export const signup = async (
@@ -75,7 +102,7 @@ export const signup = async (
       return next(new AppError(validateUser.msg!, 400));
     }
 
-    createAndSendToken(newUser, 201, res);
+    createAndSendToken(newUser, 201, res, req);
   } catch (error) {
     next(error);
   }
@@ -158,7 +185,7 @@ export const resetPassword = async (
     await insertNewPassword(user.email, encryptedPassword);
     await setPasswordResetTokenToNull(user.email);
 
-    createAndSendToken(user, 200, res);
+    createAndSendToken(user, 200, res, req);
   } catch (error) {
     next(error);
   }
@@ -185,7 +212,7 @@ export const updatePassword = async (
 
     const updatedUser = await insertNewPassword(req.user.email, newPassword);
 
-    createAndSendToken(updatedUser, 200, res);
+    createAndSendToken(updatedUser, 200, res, req);
   } catch (error) {
     next(error);
   }
@@ -216,7 +243,7 @@ export const login = async (
       );
     }
 
-    createAndSendToken(user, 200, res);
+    createAndSendToken(user, 200, res, req);
   } catch (error) {
     next(error);
   }

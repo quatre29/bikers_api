@@ -29,7 +29,13 @@ if (process.env.NODE_ENV === "development") {
 }
 
 //body parser
-app.use(cors());
+const cookieOptions = {
+  origin: "http://localhost:3000",
+  credentials: true, //access-control-allow-credentials:true
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(cookieOptions));
 app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
 
@@ -46,6 +52,16 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(req.cookies);
   next();
 });
+
+// app.use(function (req: Request, res: Response, next: NextFunction) {
+//   res.header("Access-Control-Allow-Credentials", "true");
+//   res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // Update to match the domain you will make the request from
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   next();
+// });
 
 app.use("/api", apiRouter);
 
