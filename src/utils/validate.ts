@@ -48,6 +48,7 @@ export const validateBlogPostSchema = (blogPost: BlogPost): ValidatorType => {
     title: Joi.string().min(3).max(255).required(),
     body: Joi.string().min(3).required(),
     tags: Joi.array(),
+    description: Joi.string().max(255),
     post_banner: Joi.string().allow(null),
     author: Joi.string().alphanum().min(3).max(30).required(),
   });
@@ -81,6 +82,7 @@ export const validateUpdateBlogPostSchema = (updates: UpdateBlogPost) => {
     body: Joi.string().min(3),
     tags: Joi.array(),
     post_banner: Joi.string().allow(null),
+    description: Joi.string().max(255),
   });
 
   return validate(schema, updates);

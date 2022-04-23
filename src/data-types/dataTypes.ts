@@ -43,6 +43,7 @@ export type BlogPost = {
   body: string;
   author: string;
   post_banner?: string;
+  description?: string;
   tags: string[];
   created_at?: Date;
 };

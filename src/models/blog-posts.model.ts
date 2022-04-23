@@ -7,14 +7,20 @@ export const insertNewBlogPost = async (blogPost: BlogPost) => {
   const insertInto = format(
     `
     INSERT INTO blog_posts
-    (title, author, body, post_banner, tags)
+    (title, author, body, post_banner, description, tags)
     VALUES
     (
       %L, ARRAY[%L]
     )
-    RETURNING post_id, title, author, body, tags, post_banner, created_at;
+    RETURNING post_id, title, author, body, tags, post_banner, description, created_at;
   `,
-    [blogPost.title, blogPost.author, blogPost.body, blogPost.post_banner],
+    [
+      blogPost.title,
+      blogPost.author,
+      blogPost.body,
+      blogPost.post_banner,
+      blogPost.description,
+    ],
     blogPost.tags
   );
   const post = await db.query(insertInto);
@@ -40,12 +46,20 @@ export const updateBlogPost = async (
     title = $1,
     body = $2,
     tags = $3,
-    post_banner = $4
+    post_banner = $4,
+    description = $5
     WHERE
-    post_id = $5
+    post_id = $6
     RETURNING *;
   `,
-    [newPost.title, newPost.body, newPost.tags, newPost.post_banner, post_id]
+    [
+      newPost.title,
+      newPost.body,
+      newPost.tags,
+      newPost.post_banner,
+      newPost.description,
+      post_id,
+    ]
   );
 
   return post.rows[0];
@@ -112,11 +126,13 @@ export const selectAllBlogPosts = async (
 
   const posts = await db.query(
     `
-        SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating 
+        SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating, count(blog_comments.*) as comments_count, users.avatar as author_avatar 
         FROM blog_posts
         LEFT JOIN ratings ON ratings.post_id = blog_posts.post_id
+        LEFT JOIN blog_comments ON blog_comments.post_id = blog_posts.post_id
+        LEFT JOIN users ON users.username = blog_posts.author
         ${availableData}
-        GROUP BY blog_posts.post_id
+        GROUP BY blog_posts.post_id, users.avatar
         LIMIT $2 OFFSET(($1 - 1) * $2);
     `,
     [
@@ -135,11 +151,12 @@ export const selectAllBlogPosts = async (
 export const selectBlogPostById = async (post_id: string) => {
   const post = await db.query(
     `
-    SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating 
+    SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating, users.avatar as author_avatar 
     FROM blog_posts
     LEFT JOIN ratings ON ratings.post_id = blog_posts.post_id
+    LEFT JOIN users ON users.username = blog_posts.author
     WHERE blog_posts.post_id = $1
-    GROUP BY blog_posts.post_id;
+    GROUP BY blog_posts.post_id, users.avatar;
   `,
     [post_id]
   );

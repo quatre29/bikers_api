@@ -83,6 +83,7 @@ const seed = async ({
       author VARCHAR(100) REFERENCES users(username) ON DELETE CASCADE NOT NULL,
       post_banner VARCHAR(255),
       tags VARCHAR[],
+      description VARCHAR(255),
       avg_rating FLOAT,
       ratings_count INT DEFAULT 0 NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
