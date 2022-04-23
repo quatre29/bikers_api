@@ -10,7 +10,6 @@ const hasToken = (req: Request) => {
     req.headers.authorization.split(" ")[0] === "Bearer"
   ) {
     return true;
-    //TODO: uncomment for production/fe
   } else if (req.cookies.jwt) {
     return true;
   } else {
@@ -105,4 +104,49 @@ export const restrictTo = (...roles: rolesProps[]) => {
       next(error);
     }
   };
+};
+
+export const isLoggedIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (req.cookies.jwt) {
+      const token = getToken(req);
+
+      const validToken = verityToken(token as string, next) as {
+        id: number;
+        username: string;
+        iat: number;
+        exp: number;
+      };
+
+      if (validToken) {
+        const currentUser = await _selectUserByColumn(
+          validToken.id.toString(),
+          "user_id"
+        );
+
+        if (!currentUser) {
+          return next();
+        }
+
+        const isPasswordChanged: boolean = changedPasswordAfter(
+          validToken.iat,
+          currentUser.password_changed_at
+        );
+
+        if (isPasswordChanged) {
+          return next();
+        }
+
+        req.user = currentUser;
+        return next();
+      }
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
 };

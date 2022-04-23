@@ -6,6 +6,7 @@ import {
   deactivateMe,
   getUserById,
   _changeUserRole,
+  getLoggedInUser,
 } from "../controllers/users.controllers";
 
 import {
@@ -24,6 +25,7 @@ const usersRouter = express.Router();
 
 usersRouter.route("/").post(signup).get(isAuthenticated, getAllUsers);
 
+usersRouter.route("/me").get(isAuthenticated, getLoggedInUser);
 usersRouter.route("/update_me").patch(isAuthenticated, updateMe);
 usersRouter.route("/deactivate_me").delete(isAuthenticated, deactivateMe);
 

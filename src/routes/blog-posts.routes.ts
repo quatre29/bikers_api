@@ -8,6 +8,7 @@ import {
   rateBlogPost,
   getRatingsByBlogPost,
   getMyBlogPostRating,
+  pinBlogPost,
 } from "../controllers/blog-posts.controllers";
 import { isAuthenticated, restrictTo } from "../middleware/auth";
 import blogCommentsRouter from "./blog-comments.routes";
@@ -30,6 +31,8 @@ blogPostsRouter
   .delete(isAuthenticated, deleteBlogPost);
 
 blogPostsRouter.route("/:post_id/edit").patch(isAuthenticated, editBlogPost);
+blogPostsRouter.route("/:post_id/pin").patch(isAuthenticated, pinBlogPost);
+
 blogPostsRouter
   .route("/:post_id/rating")
   .post(isAuthenticated, rateBlogPost)

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, query } from "express";
 import { BlogPost } from "../data-types/dataTypes";
 import AppError from "../errors/AppError";
 import {
@@ -11,10 +11,12 @@ import {
   selectRatingsByBlogPost,
   selectRatingsByUser,
   updateBlogPost,
+  updatePinnedBlogPost,
 } from "../models/blog-posts.model";
 import { checkIfRowExists } from "../utils/check";
 import {
   validateBlogPostSchema,
+  validatePinBlogPostBody,
   validateRatingSchema,
   validateUpdateBlogPostSchema,
 } from "../utils/validate";
@@ -56,8 +58,16 @@ export const getAllBlogPosts = async (
     const title = queryParams["title"] as string;
     const author = queryParams["author"] as string;
     const tag = queryParams["tag"] as string;
+    const pinned = queryParams["pinned"] as string;
 
-    const posts = await selectAllBlogPosts(page, limit, title, author, tag);
+    const posts = await selectAllBlogPosts(
+      page,
+      limit,
+      title,
+      author,
+      tag,
+      pinned
+    );
 
     res.status(200).send({ status: "success", data: { posts } });
   } catch (error) {
@@ -222,6 +232,29 @@ export const editBlogPost = async (
     if (!post) {
       return next(new AppError("Blog post does not exist", 404));
     }
+
+    res.status(200).send({ status: "success", data: { post } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const pinBlogPost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { pinned } = req.body;
+    const { post_id } = req.params;
+
+    const validBody = validatePinBlogPostBody(pinned, post_id);
+
+    if (!validBody.valid) {
+      return next(new AppError(validBody.msg!, 400));
+    }
+
+    const post = await updatePinnedBlogPost(pinned, post_id);
 
     res.status(200).send({ status: "success", data: { post } });
   } catch (error) {

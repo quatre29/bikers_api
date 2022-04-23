@@ -57,14 +57,16 @@ const createAndSendToken = (
   res.status(status).send({
     status: "success",
     data: {
-      user_id: user.user_id,
-      username: user.username,
-      avatar: user.avatar,
-      name: user.name,
-      email: user.email,
-      location: user.location,
-      role: user.role,
-      active: user.active,
+      user: {
+        user_id: user.user_id,
+        username: user.username,
+        avatar: user.avatar,
+        name: user.name,
+        email: user.email,
+        location: user.location,
+        role: user.role,
+        active: user.active,
+      },
     },
   });
 };

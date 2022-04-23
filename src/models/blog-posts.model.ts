@@ -1,6 +1,7 @@
 import { BlogPost, UpdateBlogPost } from "../data-types/dataTypes";
 import db from "../db/connection";
 import format from "pg-format";
+import e from "express";
 
 export const insertNewBlogPost = async (blogPost: BlogPost) => {
   const insertInto = format(
@@ -55,7 +56,8 @@ export const selectAllBlogPosts = async (
   limit = "10",
   title: string,
   author: string,
-  tag: string
+  tag: string,
+  pinned: string
 ) => {
   const paramsObj: any = {
     page,
@@ -63,9 +65,8 @@ export const selectAllBlogPosts = async (
     title,
     author,
     tag,
+    pinned,
   };
-
-  // console.log(paramsObj);
 
   const availableData = [
     ...Object.keys(paramsObj)
@@ -97,6 +98,10 @@ export const selectAllBlogPosts = async (
             //if we don't have an array, we create only 1 query
             return `${i === 2 ? "WHERE" : "AND"} $${i + 1} = any (tags)`;
           }
+        }
+
+        if (el === "pinned") {
+          return `${i === 2 ? "WHERE" : "AND"} ${el} = $${i + 1}`;
         }
 
         if (el !== "page" && el !== "limit") {
@@ -244,4 +249,23 @@ export const selectMyBlogPostRating = async (
   );
 
   return rating.rows[0];
+};
+
+export const updatePinnedBlogPost = async (
+  pinned: boolean,
+  post_id: string
+) => {
+  const updates = await db.query(
+    `
+    UPDATE blog_posts
+    SET
+    pinned = $1
+    WHERE
+    post_id = $2
+    RETURNING *;
+  `,
+    [pinned, post_id]
+  );
+
+  return updates.rows[0];
 };

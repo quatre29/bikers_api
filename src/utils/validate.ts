@@ -211,3 +211,12 @@ export const validateVoteTopicBody = (vote: string) => {
 
   return validate(schema, { vote });
 };
+
+export const validatePinBlogPostBody = (pinned: boolean, post_id: string) => {
+  const schema = Joi.object({
+    pinned: Joi.boolean().required(),
+    post_id: Joi.number().required(),
+  });
+
+  return validate(schema, { pinned, post_id });
+};

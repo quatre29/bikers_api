@@ -169,4 +169,16 @@ export const _changeUserRole = async (
   }
 };
 
+export const getLoggedInUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    res.status(200).send({ status: "success", data: { user: req.user } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // export const createUser = async (req: Request, res: Response, next: NextFunction) => {};

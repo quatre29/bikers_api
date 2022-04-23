@@ -79,6 +79,7 @@ const seed = async ({
       post_id BIGSERIAL PRIMARY KEY NOT NULL,
       title VARCHAR(255) NOT NULL,
       body TEXT NOT NULL,
+      pinned BOOLEAN DEFAULT FALSE,
       author VARCHAR(100) REFERENCES users(username) ON DELETE CASCADE NOT NULL,
       post_banner VARCHAR(255),
       tags VARCHAR[],
