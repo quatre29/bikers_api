@@ -65,6 +65,7 @@ const seed = async ({
         email VARCHAR(100) UNIQUE NOT NULL,
         location VARCHAR(100),
         role VARCHAR(50) DEFAULT 'member',
+        description VARCHAR(255),
         password TEXT NOT NULL,
         password_changed_at TIMESTAMPTZ,
         password_reset_token VARCHAR(100),
@@ -81,6 +82,7 @@ const seed = async ({
       body TEXT NOT NULL,
       pinned BOOLEAN DEFAULT FALSE,
       author VARCHAR(100) REFERENCES users(username) ON DELETE CASCADE NOT NULL,
+      author_id BIGINT REFERENCES users(user_id) ON DELETE CASCADE NOT NULL,
       post_banner VARCHAR(255),
       tags VARCHAR[],
       description VARCHAR(255),
@@ -335,17 +337,18 @@ const seed = async ({
     body,
     title,
     created_at,
+    author_id,
     tags,
   } of blogPosts) {
     const insertBlogPost = format(
       `
       INSERT INTO blog_posts
-      ( author, post_banner, body, title, created_at, tags)
+      ( author, post_banner, body, title, created_at, author_id, tags)
       VALUES
       (%L, ARRAY[%L])
-      RETURNING author, post_banner, body, title, created_at, tags
+      RETURNING author, post_banner, body, title, author_id, created_at, tags
   `,
-      [author, post_banner, body, title, created_at],
+      [author, post_banner, body, title, created_at, author_id],
       tags
     );
 

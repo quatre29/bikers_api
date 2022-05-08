@@ -13,6 +13,7 @@ export type BlogPost = {
   title: string;
   body: string;
   author: string;
+  author_id: string;
   post_banner: string;
   tags: string[];
   created_at: Date;

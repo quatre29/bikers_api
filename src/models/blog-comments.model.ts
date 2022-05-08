@@ -58,7 +58,8 @@ export const removeBlogComment = async (
 export const selectBlogPostComments = async (post_id: string) => {
   const comments = await db.query(
     `
-        SELECT * FROM blog_comments
+        SELECT blog_comments.*, users.avatar as author_avatar FROM blog_comments
+        LEFT JOIN users ON blog_comments.author = users.username
         WHERE post_id = $1
     `,
     [post_id]

@@ -40,7 +40,9 @@ app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
 
 //Data sanitization for XSS and parameter pollution
-app.use(xss());
+
+//TODO: sanitize-html | DOMPurify ---- remove xss-clean(old)
+// app.use(xss());
 app.use(
   hpp({
     whitelist: ["tag"], //whitelist parameters allowed for duplication

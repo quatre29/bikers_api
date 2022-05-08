@@ -30,6 +30,7 @@ export const createBlogPost = async (
     const newPost: BlogPost = {
       ...req.body,
       author: req.user.username,
+      author_id: req.user.user_id,
     };
 
     const valid = validateBlogPostSchema(newPost);

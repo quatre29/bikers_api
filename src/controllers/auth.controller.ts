@@ -77,8 +77,16 @@ export const signup = async (
   next: NextFunction
 ) => {
   try {
-    const { username, name, avatar, password, email, location, role }: User =
-      req.body;
+    const {
+      username,
+      name,
+      avatar,
+      password,
+      email,
+      location,
+      role,
+      description,
+    }: User = req.body;
 
     if (role && role.length > 0) {
       return next(
@@ -89,11 +97,12 @@ export const signup = async (
     const validateUser = validateUserSchema(req.body);
 
     let userInput: User = {
-      username,
+      username: username.toLowerCase(),
       name,
       password,
       email,
       location,
+      description,
     };
 
     let newUser: ReturnedUser = {} as ReturnedUser;
@@ -259,6 +268,12 @@ export const logout = async (
   next: NextFunction
 ) => {
   try {
+    res.cookie("jwt", "loggedout", {
+      expires: new Date(Date.now() + 10 * 1000),
+      httpOnly: true,
+    });
+
+    res.status(200).send({ status: "success" });
   } catch (error) {
     next(error);
   }

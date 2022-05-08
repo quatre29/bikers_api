@@ -1,18 +1,17 @@
 import { BlogPost, UpdateBlogPost } from "../data-types/dataTypes";
 import db from "../db/connection";
 import format from "pg-format";
-import e from "express";
 
 export const insertNewBlogPost = async (blogPost: BlogPost) => {
   const insertInto = format(
     `
     INSERT INTO blog_posts
-    (title, author, body, post_banner, description, tags)
+    (title, author, body, post_banner, description, author_id, tags)
     VALUES
     (
       %L, ARRAY[%L]
     )
-    RETURNING post_id, title, author, body, tags, post_banner, description, created_at;
+    RETURNING post_id, title, author, body, tags, post_banner, description, author_id, created_at;
   `,
     [
       blogPost.title,
@@ -20,6 +19,7 @@ export const insertNewBlogPost = async (blogPost: BlogPost) => {
       blogPost.body,
       blogPost.post_banner,
       blogPost.description,
+      blogPost.author_id,
     ],
     blogPost.tags
   );
@@ -123,6 +123,7 @@ export const selectAllBlogPosts = async (
         }
       }),
   ].join(" ");
+  // LEFT JOIN blog_bookmarks ON blog_bookmarks.user_id = blog_posts.
 
   const posts = await db.query(
     `
@@ -148,15 +149,34 @@ export const selectAllBlogPosts = async (
   return posts.rows;
 };
 
+// export const selectBlogPostById = async (post_id: string) => {
+//   const post = await db.query(
+//     `
+//     SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating, users.avatar as author_avatar,
+//     users.name as author_name, users.role as author_role, users.location as author_location, users.description as author_description
+//     FROM blog_posts
+//     LEFT JOIN ratings ON ratings.post_id = blog_posts.post_id
+//     LEFT JOIN users ON users.username = blog_posts.author
+//     WHERE blog_posts.post_id = $1
+//     GROUP BY blog_posts.post_id, users.avatar, users.name, users.role, users.location, users.description;
+//   `,
+//     [post_id]
+//   );
+
+//   return post.rows[0];
+// };
+
 export const selectBlogPostById = async (post_id: string) => {
   const post = await db.query(
     `
-    SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating, users.avatar as author_avatar 
+    SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating, users.avatar as author_avatar,
+    users.name as author_name, users.role as author_role, users.location as author_location, users.description as author_description
     FROM blog_posts
     LEFT JOIN ratings ON ratings.post_id = blog_posts.post_id
     LEFT JOIN users ON users.username = blog_posts.author
+    LEFT JOIN blog_bookmarks ON blog_bookmarks.user_id = blog_posts.author_id AND blog_bookmarks.post_id = blog_posts.post_id
     WHERE blog_posts.post_id = $1
-    GROUP BY blog_posts.post_id, users.avatar;
+    GROUP BY blog_posts.post_id, users.avatar, users.name, users.role, users.location, users.description;
   `,
     [post_id]
   );

@@ -38,6 +38,7 @@ export const validateUserSchema = (user: User): ValidatorType => {
     role: Joi.string().valid("member", "moderator", "admin"),
     avatar: Joi.string(),
     name: Joi.string().min(3).max(50),
+    description: Joi.string().max(255),
   });
 
   return validate(schema, user);
@@ -50,6 +51,7 @@ export const validateBlogPostSchema = (blogPost: BlogPost): ValidatorType => {
     tags: Joi.array(),
     description: Joi.string().max(255),
     post_banner: Joi.string().allow(null),
+    author_id: Joi.string().required(),
     author: Joi.string().alphanum().min(3).max(30).required(),
   });
 

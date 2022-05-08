@@ -15,15 +15,22 @@ export const insertNewUser = async (user: User) => {
     `
     INSERT INTO users
     (
-        username, name, password, email, location
+        username, name, password, email, location, description
     )
     VALUES
     (
-        $1, $2, $3, $4, $5
+        $1, $2, $3, $4, $5, $6
     )
-    RETURNING username, name, avatar, email, location, created_at, role, user_id;
+    RETURNING username, name, avatar, email, location, created_at, role, user_id, description;
         `,
-    [user.username, user.name, hashPassword, user.email, user.location]
+    [
+      user.username,
+      user.name,
+      hashPassword,
+      user.email,
+      user.location,
+      user.description,
+    ]
   );
 
   return newUser.rows[0];
@@ -75,7 +82,7 @@ export const returnAllUsers = async (
 
   const users = await db.query(
     `
-    SELECT user_id, username, name, email, location, role, created_at, avatar FROM users
+    SELECT user_id, username, name, email, location, role, created_at, description, avatar FROM users
     WHERE active = true
     ${availableData}
     LIMIT $2 OFFSET(($1 - 1) * $2);
@@ -117,9 +124,10 @@ export const updateUser = async (
     email = $2,
     location = $3,
     avatar = $4,
-    username = $5
-    WHERE user_id = $6
-    RETURNING user_id, username, avatar, name, email, location, role, created_at;
+    username = $5,
+    description = $6
+    WHERE user_id = $7
+    RETURNING user_id, username, avatar, name, email, location, role, description, created_at;
   `,
     [
       user.name,
@@ -127,6 +135,7 @@ export const updateUser = async (
       user.location,
       user.avatar,
       user.username,
+      user.description,
       user.user_id,
     ]
   );
@@ -150,7 +159,7 @@ export const deactivateUser = async (user_id: number) => {
 export const selectUserById = async (user_id: string) => {
   const user = await db.query(
     `
-    SELECT user_id, username, avatar, name, email, location, role, created_at
+    SELECT user_id, username, avatar, name, email, location, role, description, created_at
     FROM users
     WHERE user_id = $1
     `,
@@ -166,7 +175,7 @@ export const updateUserRole = async (user_id: string, role: UserRole) => {
     UPDATE users
     SET role = $1
     WHERE user_id = $2
-    RETURNING user_id, username, name, role, avatar, email, location, created_at;
+    RETURNING user_id, username, name, role, avatar, email, location, description, created_at;
   `,
     [role, user_id]
   );

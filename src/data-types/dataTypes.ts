@@ -9,6 +9,7 @@ export type User = {
   password?: string;
   created_at?: Date;
   active?: Boolean;
+  description?: string;
 };
 
 export type FilteringUsers = {
@@ -24,6 +25,7 @@ export type UpdateUser = {
   name?: string;
   email?: string;
   location?: string;
+  description?: string;
 };
 
 export type ReturnedUser = {
@@ -36,6 +38,7 @@ export type ReturnedUser = {
   role?: string;
   password?: string;
   created_at?: Date;
+  description?: string;
 };
 
 export type BlogPost = {
@@ -45,6 +48,7 @@ export type BlogPost = {
   post_banner?: string;
   description?: string;
   tags: string[];
+  author_id: string;
   created_at?: Date;
 };
 

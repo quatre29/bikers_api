@@ -25,6 +25,7 @@ blogPostsRouter
   .route("/")
   .get(isAuthenticated, getAllBlogPosts)
   .post(isAuthenticated, createBlogPost);
+
 blogPostsRouter
   .route("/:post_id")
   .get(isAuthenticated, getBlogPostById)
@@ -39,7 +40,7 @@ blogPostsRouter
   .get(isAuthenticated, getRatingsByBlogPost);
 
 blogPostsRouter
-  .route("/:post_id/bookmark")
+  .route("/:post_id/bookmarks")
   .get(isAuthenticated, getBookmarksByPost)
   .post(isAuthenticated, bookmarkBlogPost)
   .delete(isAuthenticated, unBookmarkBlogPost);
