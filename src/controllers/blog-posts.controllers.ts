@@ -83,8 +83,8 @@ export const getBlogPostById = async (
 ) => {
   try {
     const { post_id } = req.params;
-
-    const post = await selectBlogPostById(post_id);
+    const { user_id } = req.user;
+    const post = await selectBlogPostById(post_id, user_id);
 
     if (!post) {
       return next(new AppError("No post could be found", 404));
@@ -219,6 +219,7 @@ export const editBlogPost = async (
 ) => {
   try {
     const { post_id } = req.params;
+    const { user_id } = req.user;
     const updates = {
       ...req.body,
     };
@@ -229,7 +230,7 @@ export const editBlogPost = async (
       return next(new AppError(validUpdates.msg!, 400));
     }
 
-    const post = await updateBlogPost(updates, post_id);
+    const post = await updateBlogPost(updates, post_id, user_id);
     if (!post) {
       return next(new AppError("Blog post does not exist", 404));
     }

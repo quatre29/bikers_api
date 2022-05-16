@@ -30,9 +30,10 @@ export const insertNewBlogPost = async (blogPost: BlogPost) => {
 
 export const updateBlogPost = async (
   updates: UpdateBlogPost,
-  post_id: string
+  post_id: string,
+  my_id: string
 ) => {
-  const oldPost = await selectBlogPostById(post_id);
+  const oldPost = await selectBlogPostById(post_id, my_id);
 
   const newPost = {
     ...oldPost,
@@ -149,36 +150,22 @@ export const selectAllBlogPosts = async (
   return posts.rows;
 };
 
-// export const selectBlogPostById = async (post_id: string) => {
-//   const post = await db.query(
-//     `
-//     SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating, users.avatar as author_avatar,
-//     users.name as author_name, users.role as author_role, users.location as author_location, users.description as author_description
-//     FROM blog_posts
-//     LEFT JOIN ratings ON ratings.post_id = blog_posts.post_id
-//     LEFT JOIN users ON users.username = blog_posts.author
-//     WHERE blog_posts.post_id = $1
-//     GROUP BY blog_posts.post_id, users.avatar, users.name, users.role, users.location, users.description;
-//   `,
-//     [post_id]
-//   );
-
-//   return post.rows[0];
-// };
-
-export const selectBlogPostById = async (post_id: string) => {
+export const selectBlogPostById = async (post_id: string, my_id: string) => {
   const post = await db.query(
     `
-    SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating, users.avatar as author_avatar,
-    users.name as author_name, users.role as author_role, users.location as author_location, users.description as author_description
+    SELECT blog_posts.* , count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating, users.avatar as author_avatar,
+    users.name as author_name, users.role as author_role, users.location as author_location, users.description as author_description,
+      CASE WHEN blog_bookmarks.user_id IS NOT NULL AND blog_bookmarks.post_id IS NOT NULL
+      THEN true ELSE false
+      END bookmarked
     FROM blog_posts
     LEFT JOIN ratings ON ratings.post_id = blog_posts.post_id
     LEFT JOIN users ON users.username = blog_posts.author
-    LEFT JOIN blog_bookmarks ON blog_bookmarks.user_id = blog_posts.author_id AND blog_bookmarks.post_id = blog_posts.post_id
-    WHERE blog_posts.post_id = $1
-    GROUP BY blog_posts.post_id, users.avatar, users.name, users.role, users.location, users.description;
+    LEFT JOIN blog_bookmarks ON blog_bookmarks.user_id = $1 AND blog_bookmarks.post_id = blog_posts.post_id
+    WHERE blog_posts.post_id = $2
+    GROUP BY blog_posts.post_id, users.avatar, users.name, users.role, users.location, users.description, blog_bookmarks.user_id, blog_bookmarks.post_id;
   `,
-    [post_id]
+    [my_id, post_id]
   );
 
   return post.rows[0];
