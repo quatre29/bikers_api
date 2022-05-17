@@ -182,3 +182,20 @@ export const updateUserRole = async (user_id: string, role: UserRole) => {
 
   return user.rows[0];
 };
+
+export const selectUsersByPartialName = async (queryStr: string) => {
+  const user = await db.query(
+    `
+    SELECT user_id, username, avatar, name, email, location, role, description, created_at
+    FROM users
+    WHERE LOWER(username) LIKE $1
+    OR LOWER(name) LIKE $1
+    OR LOWER(role) LIKE $1
+  `,
+    [`%${queryStr}%`]
+  );
+
+  console.log(user.rows);
+
+  return user.rows;
+};

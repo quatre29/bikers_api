@@ -59,9 +59,17 @@ export const validateBlogPostSchema = (blogPost: BlogPost): ValidatorType => {
 };
 
 export const validateRoleSchema = (role: UserRole) => {
-  const schema = Joi.string().valid("admin", "moderator", "member").required();
+  const schema = Joi.string()
+    .valid("admin", "moderator", "member", "blogger", "developer")
+    .required();
 
   return validate(schema, role);
+};
+
+export const validatePartialUserNameSchema = (name: string) => {
+  const schema = Joi.string().required();
+
+  return validate(schema, name);
 };
 
 export const validateRatingSchema = (rating: number) => {

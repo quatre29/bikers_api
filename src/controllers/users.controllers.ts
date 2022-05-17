@@ -8,10 +8,14 @@ import {
   _selectUserByColumn,
   selectUserById,
   updateUserRole,
+  selectUsersByPartialName,
 } from "../models/users.model";
 
 import { checkIfRowExists } from "../utils/check";
-import { validateRoleSchema } from "../utils/validate";
+import {
+  validatePartialUserNameSchema,
+  validateRoleSchema,
+} from "../utils/validate";
 
 //--------------------------------------------------------------------------
 
@@ -176,6 +180,30 @@ export const getLoggedInUser = async (
 ) => {
   try {
     res.status(200).send({ status: "success", data: { user: req.user } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//--------------------------------------------------------------------------
+
+export const getUsersByPartialName = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { name } = req.body;
+
+    const validQuery = validatePartialUserNameSchema(name);
+
+    if (!validQuery.valid) {
+      return next(new AppError(validQuery.msg!, 400));
+    }
+
+    const users = await selectUsersByPartialName(name.toLowerCase());
+
+    res.status(200).send({ status: "success", data: users });
   } catch (error) {
     next(error);
   }
