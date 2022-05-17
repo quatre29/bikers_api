@@ -71,3 +71,19 @@ export const getBookmarksByUser = async (
     next(error);
   }
 };
+
+export const getMyBookmarks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { user_id } = req.user;
+
+    const bookmarks = await selectBookmarksByUser(user_id);
+
+    res.status(200).send({ status: "success", data: { bookmarks } });
+  } catch (error) {
+    next(error);
+  }
+};

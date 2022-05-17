@@ -19,7 +19,10 @@ import {
   updatePassword,
 } from "../controllers/auth.controller";
 import { isAuthenticated, restrictTo } from "../middleware/auth";
-import { getBookmarksByUser } from "../controllers/blog-bookmarks.controllers";
+import {
+  getBookmarksByUser,
+  getMyBookmarks,
+} from "../controllers/blog-bookmarks.controllers";
 import { getRatingsByUser } from "../controllers/blog-posts.controllers";
 
 const usersRouter = express.Router();
@@ -29,7 +32,7 @@ usersRouter.route("/").post(signup).get(isAuthenticated, getAllUsers);
 usersRouter.route("/me").get(isAuthenticated, getLoggedInUser);
 usersRouter.route("/update_me").patch(isAuthenticated, updateMe);
 usersRouter.route("/deactivate_me").delete(isAuthenticated, deactivateMe);
-
+usersRouter.route("/my_bookmarks").get(isAuthenticated, getMyBookmarks);
 usersRouter.route("/forgot_password").post(forgotPassword);
 usersRouter.route("/reset_password/:token").patch(resetPassword);
 usersRouter.route("/update_password").patch(isAuthenticated, updatePassword);
@@ -48,7 +51,7 @@ usersRouter
 
 usersRouter
   .route("/:user_id/bookmarks")
-  .get(isAuthenticated, getBookmarksByUser);
+  .get(isAuthenticated, restrictTo("admin", "moderator"), getBookmarksByUser);
 
 usersRouter.route("/:user_id/ratings").get(isAuthenticated, getRatingsByUser);
 

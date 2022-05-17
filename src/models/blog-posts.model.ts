@@ -298,12 +298,16 @@ export const selectBlogPostsPartial = async (queryStr: string) => {
   console.log(queryStr, "====");
   const posts = await db.query(
     `
-    SELECT * FROM blog_posts
+    SELECT blog_posts.*, count(ratings.*) as ratings_count, avg(ratings.rating) as avg_rating, count(blog_comments.*) as comments_count, users.avatar as author_avatar 
+    FROM blog_posts
+    LEFT JOIN ratings ON ratings.post_id = blog_posts.post_id
+    LEFT JOIN blog_comments ON blog_comments.post_id = blog_posts.post_id
     LEFT JOIN users ON users.username = blog_posts.author
     WHERE LOWER(title) LIKE $1
-    OR LOWER(author) LIKE $1
+    OR LOWER(blog_posts.author) LIKE $1
     OR $2 = any(tags)
     OR LOWER(users.name) LIKE $1
+    GROUP BY blog_posts.post_id, users.avatar;
   `,
     [`%${queryStr}%`, queryStr]
   );
