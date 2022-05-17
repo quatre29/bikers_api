@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction, query } from "express";
+import { nextTick } from "process";
 import { BlogPost } from "../data-types/dataTypes";
 import AppError from "../errors/AppError";
 import {
@@ -7,6 +8,7 @@ import {
   removeBlogPostById,
   selectAllBlogPosts,
   selectBlogPostById,
+  selectBlogPostsPartial,
   selectMyBlogPostRating,
   selectRatingsByBlogPost,
   selectRatingsByUser,
@@ -16,6 +18,7 @@ import {
 import { checkIfRowExists } from "../utils/check";
 import {
   validateBlogPostSchema,
+  validatePartialBlogPostsSchema,
   validatePinBlogPostBody,
   validateRatingSchema,
   validateUpdateBlogPostSchema,
@@ -259,6 +262,28 @@ export const pinBlogPost = async (
     const post = await updatePinnedBlogPost(pinned, post_id);
 
     res.status(200).send({ status: "success", data: { post } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getBlogPostsBySearch = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { queryStr } = req.params;
+
+    const validQuery = validatePartialBlogPostsSchema(queryStr);
+
+    if (!validQuery.valid) {
+      return next(new AppError(validQuery.msg!, 400));
+    }
+
+    const posts = await selectBlogPostsPartial(queryStr.toLowerCase());
+
+    res.status(200).send({ status: "success", data: { posts } });
   } catch (error) {
     next(error);
   }

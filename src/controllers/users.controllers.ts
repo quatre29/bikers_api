@@ -193,17 +193,17 @@ export const getUsersByPartialName = async (
   next: NextFunction
 ) => {
   try {
-    const { name } = req.body;
+    const { query_str } = req.params;
 
-    const validQuery = validatePartialUserNameSchema(name);
+    const validQuery = validatePartialUserNameSchema(query_str);
 
     if (!validQuery.valid) {
       return next(new AppError(validQuery.msg!, 400));
     }
 
-    const users = await selectUsersByPartialName(name.toLowerCase());
+    const users = await selectUsersByPartialName(query_str.toLowerCase());
 
-    res.status(200).send({ status: "success", data: users });
+    res.status(200).send({ status: "success", data: { users } });
   } catch (error) {
     next(error);
   }

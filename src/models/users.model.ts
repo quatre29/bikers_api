@@ -195,7 +195,5 @@ export const selectUsersByPartialName = async (queryStr: string) => {
     [`%${queryStr}%`]
   );
 
-  console.log(user.rows);
-
   return user.rows;
 };

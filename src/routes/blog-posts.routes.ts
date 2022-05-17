@@ -9,6 +9,7 @@ import {
   getRatingsByBlogPost,
   getMyBlogPostRating,
   pinBlogPost,
+  getBlogPostsBySearch,
 } from "../controllers/blog-posts.controllers";
 import { isAuthenticated, restrictTo } from "../middleware/auth";
 import blogCommentsRouter from "./blog-comments.routes";
@@ -25,6 +26,10 @@ blogPostsRouter
   .route("/")
   .get(isAuthenticated, getAllBlogPosts)
   .post(isAuthenticated, createBlogPost);
+
+blogPostsRouter
+  .route("/partial_name/:queryStr")
+  .get(isAuthenticated, getBlogPostsBySearch);
 
 blogPostsRouter
   .route("/:post_id")

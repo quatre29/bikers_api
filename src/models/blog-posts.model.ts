@@ -293,3 +293,20 @@ export const updatePinnedBlogPost = async (
 
   return updates.rows[0];
 };
+
+export const selectBlogPostsPartial = async (queryStr: string) => {
+  console.log(queryStr, "====");
+  const posts = await db.query(
+    `
+    SELECT * FROM blog_posts
+    LEFT JOIN users ON users.username = blog_posts.author
+    WHERE LOWER(title) LIKE $1
+    OR LOWER(author) LIKE $1
+    OR $2 = any(tags)
+    OR LOWER(users.name) LIKE $1
+  `,
+    [`%${queryStr}%`, queryStr]
+  );
+
+  return posts.rows;
+};

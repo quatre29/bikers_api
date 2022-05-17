@@ -34,7 +34,9 @@ usersRouter.route("/forgot_password").post(forgotPassword);
 usersRouter.route("/reset_password/:token").patch(resetPassword);
 usersRouter.route("/update_password").patch(isAuthenticated, updatePassword);
 
-usersRouter.route("/partial_name").get(isAuthenticated, getUsersByPartialName);
+usersRouter
+  .route("/partial_name/:query_str")
+  .get(isAuthenticated, getUsersByPartialName);
 
 usersRouter.route("/login").post(login);
 usersRouter.route("/logout").post(isAuthenticated, logout);

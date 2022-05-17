@@ -72,6 +72,12 @@ export const validatePartialUserNameSchema = (name: string) => {
   return validate(schema, name);
 };
 
+export const validatePartialBlogPostsSchema = (name: string) => {
+  const schema = Joi.string().required();
+
+  return validate(schema, name);
+};
+
 export const validateRatingSchema = (rating: number) => {
   const schema = Joi.number().integer().positive().min(1).max(5).required();
 
