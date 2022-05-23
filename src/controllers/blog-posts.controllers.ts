@@ -16,6 +16,7 @@ import {
   updatePinnedBlogPost,
 } from "../models/blog-posts.model";
 import { checkIfRowExists } from "../utils/check";
+import cloudinary from "../utils/cloudinary";
 import {
   validateBlogPostSchema,
   validatePartialBlogPostsSchema,
@@ -30,8 +31,20 @@ export const createBlogPost = async (
   next: NextFunction
 ) => {
   try {
+    const banner = req.body.post_banner;
+    let cloudinary_banner = null;
+
+    if (banner && banner !== "") {
+      const uploadRes = await cloudinary.uploader.upload(banner, {
+        upload_preset: "blog_post_banner_upload",
+      });
+
+      cloudinary_banner = uploadRes.public_id;
+    }
+
     const newPost: BlogPost = {
       ...req.body,
+      post_banner: cloudinary_banner,
       author: req.user.username,
       author_id: req.user.user_id,
     };
@@ -221,10 +234,26 @@ export const editBlogPost = async (
   next: NextFunction
 ) => {
   try {
+    let { post_banner } = req.body;
+    let banner = post_banner;
+
+    if (
+      typeof banner === "string" &&
+      banner.startsWith("data") &&
+      banner !== ""
+    ) {
+      const uploadRes = await cloudinary.uploader.upload(banner, {
+        upload_preset: "blog_post_banner_upload",
+      });
+
+      banner = uploadRes.public_id;
+    }
+
     const { post_id } = req.params;
     const { user_id } = req.user;
     const updates = {
       ...req.body,
+      post_banner: banner,
     };
 
     const validUpdates = validateUpdateBlogPostSchema(updates);

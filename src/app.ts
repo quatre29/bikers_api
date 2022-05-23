@@ -36,7 +36,7 @@ const cookieOptions = {
 };
 
 app.use(cors(cookieOptions));
-app.use(express.json({ limit: "100kb" }));
+app.use(express.json({ limit: "40mb" }));
 app.use(cookieParser());
 
 //Data sanitization for XSS and parameter pollution

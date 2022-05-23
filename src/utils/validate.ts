@@ -50,7 +50,7 @@ export const validateBlogPostSchema = (blogPost: BlogPost): ValidatorType => {
     body: Joi.string().min(3).required(),
     tags: Joi.array(),
     description: Joi.string().max(255),
-    post_banner: Joi.string().allow(null),
+    post_banner: Joi.string().allow(null).allow(""),
     author_id: Joi.string().required(),
     author: Joi.string().alphanum().min(3).max(30).required(),
   });
@@ -97,7 +97,7 @@ export const validateUpdateBlogPostSchema = (updates: UpdateBlogPost) => {
     title: Joi.string().min(3).max(255),
     body: Joi.string().min(3),
     tags: Joi.array(),
-    post_banner: Joi.string().allow(null),
+    post_banner: Joi.string().allow(null).allow(""),
     description: Joi.string().max(255),
   });
 

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import AppError from "./AppError";
 
 const sendErrorDev = (err: AppError, res: Response) => {
+  console.log(err.message);
   res.status(err.statusCode).send({
     status: err.status,
     error: err,
@@ -56,7 +57,6 @@ export default (
     if (error.code === "23503") {
       error = new AppError(error.message, 404);
     }
-
     sendErrorDev(error, res);
   } else if (process.env.NODE_ENV === "production") {
     let error = Object.assign(err);

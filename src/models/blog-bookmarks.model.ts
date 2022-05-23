@@ -18,7 +18,7 @@ export const insertNewBookmark = async (post_id: string, user_id: string) => {
 export const selectBookmarksByUser = async (user_id: string) => {
   const bookmarks = await db.query(
     `
-    SELECT blog_bookmarks.*,users.name as author_name, blog_posts.title, blog_posts.author, blog_posts.created_at, blog_posts.tags FROM blog_bookmarks
+    SELECT blog_bookmarks.*, users.avatar as author_avatar, users.name as author_name, blog_posts.title, blog_posts.author, blog_posts.created_at, blog_posts.tags FROM blog_bookmarks
     LEFT JOIN blog_posts ON blog_posts.post_id = blog_bookmarks.post_id
     LEFT JOIN users ON users.user_id = blog_bookmarks.user_id
     WHERE blog_bookmarks.user_id = $1;
