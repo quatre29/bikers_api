@@ -142,7 +142,7 @@ export const getRepliesByTopic = async (
   next: NextFunction
 ) => {
   try {
-    const { topic_id } = req.body;
+    const { topic_id } = req.params;
 
     const validBody = validateRepliesByTopicBody(topic_id);
 
@@ -150,9 +150,9 @@ export const getRepliesByTopic = async (
       return next(new AppError(validBody.msg!, 400));
     }
 
-    const topics = await selectRepliesByTopic(topic_id);
+    const replies = await selectRepliesByTopic(topic_id);
 
-    res.status(200).send({ status: "success", data: { topics } });
+    res.status(200).send({ status: "success", data: { replies } });
   } catch (error) {
     next(error);
   }

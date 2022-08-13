@@ -150,7 +150,7 @@ const seed = async ({
         forum_id BIGSERIAL PRIMARY KEY NOT NULL,
         name VARCHAR(50) NOT NULL,
         description VARCHAR(255),
-        parent_forum_id BIGINT,
+        parent_forum_id BIGINT REFERENCES forums(forum_id) ON DELETE CASCADE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         category_id BIGINT REFERENCES forum_categories(category_id)
       )

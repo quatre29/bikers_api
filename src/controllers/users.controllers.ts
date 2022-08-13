@@ -12,6 +12,7 @@ import {
 } from "../models/users.model";
 
 import { checkIfRowExists } from "../utils/check";
+import cloudinary from "../utils/cloudinary";
 import {
   validatePartialUserNameSchema,
   validateRoleSchema,
@@ -68,7 +69,28 @@ export const updateMe = async (
       );
     }
 
-    const user = await updateUser(req.user, req.body);
+    const { avatar } = req.body;
+
+    let newAvatar = avatar;
+
+    if (
+      typeof newAvatar === "string" &&
+      newAvatar.startsWith("data") &&
+      newAvatar !== ""
+    ) {
+      const uploadRes = await cloudinary.uploader.upload(newAvatar, {
+        upload_preset: "avatar_upload",
+      });
+
+      newAvatar = uploadRes.public_id;
+    }
+
+    const body = {
+      ...req.body,
+      avatar: newAvatar,
+    };
+
+    const user = await updateUser(req.user, body);
 
     res.status(200).send({ status: "success", data: { user } });
   } catch (error) {

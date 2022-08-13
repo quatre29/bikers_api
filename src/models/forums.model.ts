@@ -1,10 +1,17 @@
 import db from "../db/connection";
 
+// SELECT f1.*, b.name as forum_parent_name forum_categories.name as category_name FROM forums f1
+// LEFT JOIN forum_categories ON f1.category_id = forum_categories.category_id
+// LEFT JOIN forums b ON b.forum_id = a.forum_id
+// WHERE forum_id = $1;
+
 export const selectForumById = async (forum_id: string) => {
   const forum = await db.query(
     `
-    SELECT * FROM forums
-    WHERE forum_id = $1;
+    SELECT f1.*, f2.name as parent_forum_name, forum_categories.name as category_name FROM forums f1
+    LEFT JOIN forum_categories ON f1.category_id = forum_categories.category_id
+    LEFT JOIN forums f2 ON f2.forum_id = f1.parent_forum_id
+    WHERE f1.forum_id = $1;
   `,
     [forum_id]
   );
@@ -31,6 +38,33 @@ export const selectForumCategories = async (role: string) => {
   }
 
   return categories.rows;
+};
+
+export const selectForumCategoryById = async (
+  role: string,
+  category_id: string
+) => {
+  let category;
+  if (role === "moderator" || role === "admin") {
+    category = await db.query(
+      `
+            SELECT * FROM forum_categories
+            WHERE category_id = $1;
+            `,
+      [category_id]
+    );
+  } else {
+    category = await db.query(
+      `
+            SELECT * FROM forum_categories
+            WHERE admin_only = false
+            AND category_id = $1;
+            `,
+      [category_id]
+    );
+  }
+
+  return category.rows[0];
 };
 
 export const addNewForumCategory = async (
@@ -85,8 +119,10 @@ export const deleteCategory = async (category_id: string) => {
 export const selectForumsByCategory = async (category_id: string) => {
   const forums = await db.query(
     `
-    SELECT * FROM forums
-    WHERE category_id = $1;
+    SELECT forums.*, count(forum_topics.*) as topics_count FROM forums
+    LEFT JOIN forum_topics ON forums.forum_id = forum_topics.forum_id
+    WHERE category_id = $1 AND parent_forum_id IS NULL
+    GROUP BY forums.forum_id;
   `,
     [category_id]
   );
@@ -97,8 +133,11 @@ export const selectForumsByCategory = async (category_id: string) => {
 export const selectSubForumsByForumId = async (forum_id: string) => {
   const subForums = await db.query(
     `
-    SELECT * FROM forums
-    WHERE parent_forum_id = $1;
+    SELECT forums.*, count(forum_topics.*) as topics_count FROM forums
+    LEFT JOIN forum_topics ON forums.forum_id = forum_topics.forum_id
+    WHERE parent_forum_id = $1
+    GROUP BY forums.forum_id;
+
     `,
     [forum_id]
   );
@@ -130,19 +169,20 @@ export const createNewForum = async (
 export const createNewSubForum = async (
   name: string,
   description: string,
-  parent_forum_id: string
+  parent_forum_id: string,
+  category_id: string
 ) => {
   const newForum = await db.query(
     `
     INSERT INTO forums
-    (name, description, parent_forum_id)
+    (name, description, parent_forum_id, category_id)
     VALUES
     (
-      $1, $2, $3
+      $1, $2, $3, $4
     )
     RETURNING *;
   `,
-    [name, description, parent_forum_id]
+    [name, description, parent_forum_id, category_id]
   );
 
   return newForum.rows[0];

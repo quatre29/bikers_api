@@ -61,8 +61,11 @@ export const selectReplyById = async (reply_id: string) => {
 export const selectRepliesByTopic = async (topic_id: string) => {
   const reply = await db.query(
     `
-      SELECT * FROM topic_replies
-      WHERE topic_id = $1;
+      SELECT topic_replies.*, users.avatar as author_avatar, users.user_id as author_id,
+      users.role as author_role, users.name as author_name FROM topic_replies
+      LEFT JOIN users ON users.username = topic_replies.author
+      WHERE topic_id = $1
+      ORDER BY topic_replies.created_at DESC;
     `,
     [topic_id]
   );

@@ -10,9 +10,11 @@ import { isAuthenticated } from "../middleware/auth";
 
 const forumRepliesRouter = express.Router();
 
+forumRepliesRouter.route("/").post(isAuthenticated, addReply);
+// .get(isAuthenticated, getRepliesByTopic);
+
 forumRepliesRouter
-  .route("/")
-  .post(isAuthenticated, addReply)
+  .route("/:topic_id/replies")
   .get(isAuthenticated, getRepliesByTopic);
 
 forumRepliesRouter

@@ -10,6 +10,7 @@ import {
   editForumCategory,
   selectForumById,
   selectForumCategories,
+  selectForumCategoryById,
   selectForumsByCategory,
   selectSubForumsByForumId,
 } from "../models/forums.model";
@@ -48,6 +49,23 @@ export const getAllForumCategories = async (
     const categories = await selectForumCategories(role);
 
     res.status(200).send({ status: "success", data: { categories } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getForumCategoryById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { role } = req.user;
+    const { category_id } = req.params;
+
+    const category = await selectForumCategoryById(role, category_id);
+
+    res.status(200).send({ status: "success", data: { category } });
   } catch (error) {
     next(error);
   }
@@ -230,7 +248,8 @@ export const addNewSubForum = async (
     const newSubForum = await createNewSubForum(
       name,
       description,
-      parentForumId
+      parentForumId,
+      forum.category_id
     );
 
     if (!newSubForum) {

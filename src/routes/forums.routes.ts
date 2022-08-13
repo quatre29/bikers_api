@@ -11,6 +11,7 @@ import {
   getForumById,
   updateForumCategory,
   updateForum,
+  getForumCategoryById,
 } from "../controllers/forums.controllers";
 import { isAuthenticated, restrictTo } from "../middleware/auth";
 import forumTopicsRouter from "./forum-topics.routes";
@@ -28,8 +29,8 @@ forumsRouter
 
 forumsRouter
   .route("/:forum_id")
-  .get(isAuthenticated, restrictTo("admin"), getForumById)
-  .delete(isAuthenticated, restrictTo("admin"), removeForum)
+  .get(isAuthenticated, getForumById)
+  .delete(isAuthenticated, removeForum)
   .patch(isAuthenticated, restrictTo("admin", "moderator"), updateForum);
 
 forumsRouter
@@ -39,6 +40,7 @@ forumsRouter
 
 forumsRouter
   .route("/categories/:category_id")
+  .get(isAuthenticated, getForumCategoryById)
   .delete(
     isAuthenticated,
     restrictTo("admin", "moderator"),
@@ -53,7 +55,7 @@ forumsRouter
 forumsRouter
   .route("/:forum_id/sub-forums")
   .get(isAuthenticated, getSubForumsByForumId)
-  .post(isAuthenticated, restrictTo("admin", "moderator"), addNewSubForum);
+  .post(isAuthenticated, addNewSubForum);
 
 forumsRouter.use("/:forum_id/topics", forumTopicsRouter);
 
