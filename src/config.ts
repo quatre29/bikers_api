@@ -15,6 +15,8 @@ switch (process.env.NODE_ENV) {
     });
 
     break;
+  case "production":
+    console.log("Environment is production");
   default:
     throw new Error(`NODE_ENV ${process.env.NODE_ENV} is not handled!`);
 }
