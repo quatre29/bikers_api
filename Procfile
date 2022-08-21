@@ -1,1 +1,1 @@
-web: node dist/listen.js
+web:node dist/listen.js
