@@ -8,8 +8,18 @@ dotenv.config({
   path: `${__dirname}/../../.env.${ENV}`,
 });
 
-if (!process.env.PGDATABASE) {
-  throw new Error("PGDATABASE not set");
+if (!process.env.PGDATABASE && !process.env.DATABASE_URL) {
+  throw new Error("PGDATABASE or DATABASE_URL not set");
 }
 
-export default new Pool();
+const config =
+  ENV === "production"
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      }
+    : {};
+
+export default new Pool(config);
