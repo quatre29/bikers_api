@@ -27,7 +27,7 @@ import { getRatingsByUser } from "../controllers/blog-posts.controllers";
 
 const usersRouter = express.Router();
 
-usersRouter.route("/").post(signup).get(isAuthenticated, getAllUsers);
+usersRouter.route("/").post(signup).get(getAllUsers);
 
 usersRouter.route("/me").get(isAuthenticated, getLoggedInUser);
 usersRouter.route("/update_me").patch(isAuthenticated, updateMe);
