@@ -24,7 +24,7 @@ module.exports = {
   apps: [
     {
       name: "bikers",
-      script: "./dist/listen.js",
+      script: "node ./dist/listen.js",
       env: {
         NODE_ENV: "development",
       },
