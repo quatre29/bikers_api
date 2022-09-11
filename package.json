@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "NODE_ENV=development nodemon dist/listen.js",
-    "start": "node dist/listen.js",
+    "start": "pm2-runtime start ecosystem.config.js --env production",
     "build": "tsc",
     "watch-ts": "tsc -w",
     "watch-node": "nodemon dist/listen.js",
@@ -56,6 +56,7 @@
     "nodemailer": "^6.7.3",
     "pg": "^8.7.3",
     "pg-format": "^1.0.4",
+    "pm2": "^5.2.0",
     "reflect-metadata": "^0.1.13",
     "xss-clean": "^0.1.1"
   }
