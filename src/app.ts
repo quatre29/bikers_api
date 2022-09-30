@@ -10,7 +10,6 @@ import hpp from "hpp";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import "./config";
-import db from "./db/connection";
 
 const app = express();
 
@@ -31,7 +30,7 @@ if (process.env.NODE_ENV === "development") {
 
 //body parser
 const cookieOptions = {
-  origin: "http://localhost:3000",
+  origin: "http://localhost",
   credentials: true, //access-control-allow-credentials:true
   optionsSuccessStatus: 200,
 };
@@ -64,17 +63,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 //     "Origin, X-Requested-With, Content-Type, Accept"
 //   );
 //   next();
-// });
-
-db.on("connect", (client) => {
-  client.query("CREATE TABLE IF NOT EXISTS bikers;").catch((err) => {
-    console.log(
-      err,
-      "===========================================================================================",
-      err
-    );
-  });
-});
+// });ss
 
 app.use("/api", apiRouter);
 

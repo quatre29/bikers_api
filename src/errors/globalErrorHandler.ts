@@ -46,7 +46,8 @@ export default (
 
   if (
     process.env.NODE_ENV === "development" ||
-    process.env.NODE_ENV === "test"
+    process.env.NODE_ENV === "test" ||
+    process.env.NODE_ENV === "production"
   ) {
     let error = Object.assign(err);
 
@@ -58,7 +59,9 @@ export default (
       error = new AppError(error.message, 404);
     }
     sendErrorDev(error, res);
-  } else if (process.env.NODE_ENV === "production") {
+
+    //TODO: reverse 'production-excluded'
+  } else if (process.env.NODE_ENV === "production-excluded") {
     let error = Object.assign(err);
 
     if (error.name === "JsonWebTokenError") error = handleJWTError();
