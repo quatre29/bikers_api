@@ -1,4 +1,5 @@
 import * as dotenv from "dotenv";
+import { DB_KEYS } from "../keys";
 
 import { Pool } from "pg";
 
@@ -8,18 +9,32 @@ dotenv.config({
   path: `${__dirname}/../../.env.${ENV}`,
 });
 
-if (!process.env.PGDATABASE && !process.env.DATABASE_URL) {
-  throw new Error("PGDATABASE or DATABASE_URL not set");
-}
+const CONFIG = {
+  user: DB_KEYS.pgUser,
+  host: DB_KEYS.pgHost,
+  database: DB_KEYS.pgDatabase,
+  password: DB_KEYS.pgPassword,
+  port: DB_KEYS.pgPort,
+};
 
-const config =
-  ENV === "production"
-    ? {
-        connectionString: process.env.DATABASE_URL,
-        ssl: {
-          rejectUnauthorized: false,
-        },
-      }
-    : {};
+console.log(
+  CONFIG,
+  "00000000000000000000000000000000000000000000000000000s000000000000000"
+);
 
-export default new Pool(config);
+// if (!process.env.POSTGRES_DATABASE && !process.env.DATABASE_URL) {
+//   console.log(process.env.POSTGRES_DATABASE, process.env.DATABASE_URL);
+//   throw new Error("POSTGRES_DATABASE or DATABASE_URL not set");
+// }
+
+// const config =
+//   ENV === "production"
+//     ? {
+//         // connectionString: process.env.DATABASE_URL,
+//         // ssl: {
+//         //   rejectUnauthorized: false,
+//         // },
+//       }
+//     : {};
+
+export default new Pool(CONFIG);

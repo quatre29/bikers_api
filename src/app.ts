@@ -10,6 +10,7 @@ import hpp from "hpp";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import "./config";
+import db from "./db/connection";
 
 const app = express();
 
@@ -64,6 +65,16 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 //   );
 //   next();
 // });
+
+db.on("connect", (client) => {
+  client.query("CREATE TABLE IF NOT EXISTS bikers;").catch((err) => {
+    console.log(
+      err,
+      "===========================================================================================",
+      err
+    );
+  });
+});
 
 app.use("/api", apiRouter);
 
